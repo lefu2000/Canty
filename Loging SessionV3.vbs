@@ -1,4 +1,4 @@
-﻿#$Language="VBScript"
+#$Language="VBScript"
 #$Interface="1.0"
 
 Sub Main()
@@ -12,7 +12,7 @@ Sub Main()
 
     ' Ruta a la carpeta que contiene las sesiones de SecureCRT (.ini) "D:\usuario\XXXX\AppData\Roaming\Vanyke\Config\Session"
     ' El ejemplo de la ruta puede variar donde ud. tenga guardado las sessiones pre configuradas
-    rutaCarpetaSesiones = "D:\Usuarios\lriver14\AppData\Roaming\VanDyke\Config\Sessions\PRUEBA - TESIS" ' CUIDADO CON LA RUTA
+    rutaCarpetaSesiones = "D:\Usuarios\lriver14\AppData\Roaming\VanDyke\Config\Sessions\Tesis - Respaldo\Equipos de Prueba\ZTE\5950\" ' CUIDADO CON LA RUTA
 
     ' Lista de comandos a ejecutar en cada sesiÃ³n
     comandos = Array("Hola mundo", "logout")
@@ -30,34 +30,40 @@ Sub Main()
     Set archivos = objCarpeta.Files
 
     ' Crear archivo de log
-    archivoLog = "D:\RESPALDO CRT\Logs-Tesis\log.txt" ' Cambia la ruta del archivo de log DONDE SE GUARDARAN LOS MENSAJES DEBUGGIN
+    archivoLog = "D:\Usuarios\lriver14\Documents\Log - Falla -Codigo\log-debuging.txt" ' Cambia la ruta del archivo de log DONDE SE GUARDARAN LOS MENSAJES DEBUGGIN
     If Not objFSO.FileExists(archivoLog) Then
         objFSO.CreateTextFile archivoLog
     End If
 
+RegistrarLog archivoLog," Antes de Leer los archivos "
+
     ' Bucle a traves de los archivos (sesiones)
     For Each archivo In archivos
 
+RegistrarLog archivoLog, "Leer los archivo .ini"
+
         ' Verificar si el archivo es una sesiÃ³n de SecureCRT (.ini)
-        If LCase(objFSO.GetExtensionName(archivo.Name)) = "ini" Then 
-            if objFSO.GetBaseName(archivo.Name) != "__FolderData__" Then ' If para evitar que lea el archivo __FolderData__
+        If LCase(objFSO.GetExtensionName(archivo.Name)) = "ini" And objFSO.GetBaseName(archivo.Name) <> "__FolderData__" Then 
+
                 ' Obtener el nombre de la sesiÃ³n (sin la extension .ini)
+
                 nombreSesion = objFSO.GetBaseName(archivo.Name)
 
-                ' Extraer el host del nombre de la sesiÃ³n (asumiendo formato "usuario@host" o similar)
-                ' host = Split(nombreSesion, " ")(1) ' Ajusta el delimitador si es diferente
+RegistrarLog archivoLog, "Nombre se sessionv1= " & nombreSesion
+
 
                 ' Valida que la session este desconectada
                 crt.Session.Disconnect 
 
+RegistrarLog archivoLog, "antes de conecctar a una session"
+
                 ' 1. Entrada automatica (conexion)
-                If crt.Session.Connect("/S" & nombreSesion) Then
+                If crt.Session.Connect("/S "  & nombreSesion) Then
                 'If crt.Session.Connect("/ssh2 /l " & usuario & " /password " & contrasena & " " & host) Then
 
                     RegistrarLog archivoLog, "Conectado a " & nombreSesion
 
                     crt.Screen.Synchronous = True
-                    crt.Sleep retardo * 1000
 
                     ' 2. IntroducciÃ³n de comandos
                     For Each comando In comandos
@@ -82,7 +88,7 @@ Sub Main()
 
                 ' Retardo antes de conectar a la siguiente sesiÃ³n
                 crt.Sleep retardo * 1000
-            End if
+
         End If
 
     Next
