@@ -1,105 +1,218 @@
-#$Language="VBScript"
-#$Interface="1.0"
+# $language = "VBScript"
+# $Interface = "1.0"
+
+Option Explicit
+
+' Declaración de variables globales
+Dim rutaCarpetaSesiones, objFSO, objCarpeta, archivos, archivo, nombreSesion
+Dim retardo, archivoLog, comandos
+Dim contadorArchivos
+
+' Configuración inicial
+crt.Screen.Synchronous = False  ' Habilita modo asincrónico para evitar errores de tiempo de espera
+crt.Screen.IgnoreEscape = True ' Ignora caracteres de escape para evitar problemas de conexión
 
 Sub Main()
-
-    Dim rutaCarpetaSesiones, objFSO, objCarpeta, archivos, archivo, nombreSesion, comandos, comando, retardo
-    Dim usuario, contrasena, host, archivoLog
-
-    ' Credenciales
-    usuario = "lriver14" ' Reemplaza con tu nombre de usuario
-    contrasena = "Gamboa.16" ' Reemplaza con tu contraseÃ±a
-
-    ' Ruta a la carpeta que contiene las sesiones de SecureCRT (.ini) "D:\usuario\XXXX\AppData\Roaming\Vanyke\Config\Session"
-    ' El ejemplo de la ruta puede variar donde ud. tenga guardado las sessiones pre configuradas
-    rutaCarpetaSesiones = "D:\Usuarios\lriver14\AppData\Roaming\VanDyke\Config\Sessions\Tesis - Respaldo\Equipos de Prueba\ZTE\5950\" ' CUIDADO CON LA RUTA
-
-    ' Lista de comandos a ejecutar en cada sesiÃ³n
-    comandos = Array("Hola mundo", "logout")
-
-    ' Retardo entre sesiones (en segundos)
-    retardo = 5
-
-    ' Crear objeto FileSystemObject
+    ' Rutas de configuración (MODIFICAR SEGÚN NECESARIO)
+    rutaCarpetaSesiones = "D:\Usuarios\lriver14\AppData\Roaming\VanDyke\Config\Sessions\Tesis - Respaldo\"
+    archivoLog = "D:\Usuarios\lriver14\Documents\Log - Falla -Codigo\log-debuging.txt"
+    retardo = 5  ' Retardo entre sesiones en segundos
+    
+    ' Comandos a ejecutar en cada dispositivo
+    comandos = Array("show running-config")
+    
+    ' Inicialización de objetos
     Set objFSO = CreateObject("Scripting.FileSystemObject")
-
-    ' Obtener la carpeta de sesiones
-    Set objCarpeta = objFSO.GetFolder(rutaCarpetaSesiones)
-
-    ' Obtener la coleccion de archivos en una unica carpeta  * IMPORTANTE CUIDADO CON LA RUTA	
-    Set archivos = objCarpeta.Files
-
-    ' Crear archivo de log
-    archivoLog = "D:\Usuarios\lriver14\Documents\Log - Falla -Codigo\log-debuging.txt" ' Cambia la ruta del archivo de log DONDE SE GUARDARAN LOS MENSAJES DEBUGGIN
-    If Not objFSO.FileExists(archivoLog) Then
-        objFSO.CreateTextFile archivoLog
+    
+        ' Verificar existencia de la carpeta
+    If Not objFSO.FolderExists(rutaCarpetaSesiones) Then
+        RegistrarLog archivoLog, "Error: No se encuentra la carpeta de sesiones", vbExclamation
+        Exit Sub
     End If
 
-RegistrarLog archivoLog," Antes de Leer los archivos "
+    ' Configurar archivo de log
+    CrearArchivoLog archivoLog, objFSO
+    RegistrarLog archivoLog, "=== INICIO DE PROCESAMIENTO ==="
+    RegistrarLog archivoLog, "Buscando sesiones en: " & rutaCarpetaSesiones
+    
+    ' Verificar si existe la carpeta de sesiones
+    If Not objFSO.FolderExists(rutaCarpetaSesiones) Then
+        RegistrarLog archivoLog, "ERROR: No se encuentra la carpeta de sesiones"
+        Exit Sub
+    End If
+    
+    ' Obtener la carpeta de sesiones
+    Set objCarpeta = objFSO.GetFolder(rutaCarpetaSesiones)
+    contadorArchivos = 0
 
-    ' Bucle a traves de los archivos (sesiones)
-    For Each archivo In archivos
+    ' Procesar cada archivo .ini encontrado
+    For Each archivo In objCarpeta.Files
+    RegistrarLog archivoLog, "Archivo completo: '" & archivo.Name & "' | Ext: " & objFSO.GetExtensionName(archivo.Name) & " | Size: " & archivo.Size
 
-RegistrarLog archivoLog, "Leer los archivo .ini"
+        If EsSesionValida(archivo, objFSO) Then 
 
-        ' Verificar si el archivo es una sesiÃ³n de SecureCRT (.ini)
-        If LCase(objFSO.GetExtensionName(archivo.Name)) = "ini" And objFSO.GetBaseName(archivo.Name) <> "__FolderData__" Then 
+            nombreSesion = objFSO.GetBaseName(archivo.Name)
+            RegistrarLog archivoLog, "Procesando archivo: " & nombreSesion
+            
+            ' Desconectar si hay sesión activa
+            If crt.Session.Connected Then
+                crt.Session.Disconnect
+                crt.Sleep 2000 ' Esperar 2 segundos
+            End If
+            
+            ' Conectar y ejecutar comandos
 
-                ' Obtener el nombre de la sesiÃ³n (sin la extension .ini)
+            ' Ejemplo con reintentos automáticos
+            Dim intentos, resultado
+            For intentos = 1 To 3
 
-                nombreSesion = objFSO.GetBaseName(archivo.Name)
+                ' Intentar conectar a la sesión
+                Conect_Session nombreSesion, comandos
 
-RegistrarLog archivoLog, "Nombre se sessionv1= " & nombreSesion
+                resultado = EsperarPrompt(nombreSesion)
+                If resultado = 0 Then Exit For
+                crt.Sleep 2000 ' Espera 2 segundos entre intentos
+                RegistrarLog archivoLog, "Reintento " & intentos & " para conectar a " & nombreSesion
+            Next
 
+            If resultado <> 0 Then
+                RegistrarLog archivoLog, "Fallo definitivo al conectar a " & nombreSesion
+                Exit Sub
+            End If
 
-                ' Valida que la session este desconectada
-                crt.Session.Disconnect 
+            ' Esperar entre sesiones
+            crt.Sleep retardo * 1000
 
-RegistrarLog archivoLog, "antes de conecctar a una session"
-
-                ' 1. Entrada automatica (conexion)
-                If crt.Session.Connect("/S "  & nombreSesion) Then
-                'If crt.Session.Connect("/ssh2 /l " & usuario & " /password " & contrasena & " " & host) Then
-
-                    RegistrarLog archivoLog, "Conectado a " & nombreSesion
-
-                    crt.Screen.Synchronous = True
-
-                    ' 2. IntroducciÃ³n de comandos
-                    For Each comando In comandos
-                        crt.Screen.Send comando & vbCr
-                        If crt.Screen.WaitForString(Array("#","<",">"), 10) Then ' Caraceteres que espera que aparesca en pantalla para continuar
-                            RegistrarLog archivoLog, "Comando: '" & comando & "' ejecutado correctamente en " & nombreSesion
-                        Else
-                            RegistrarLog archivoLog, "Error al ejecutar el comando '" & comando & "' en " & nombreSesion
-                        End If
-                    Next
-
-                    ' 3. Salida automÃ¡tica (desconexiÃ³n)
-                    crt.Session.Disconnect
-                    RegistrarLog archivoLog, "Desconectado de " & nombreSesion
-
-                    crt.Screen.Synchronous = False
-
-                Else
-                    RegistrarLog archivoLog, "Error al conectar a la sesion " & nombreSesion
-                    crt.Dialog.MessageBox "Error al conectar a la sesion " & nombreSesion
-                End If
-
-                ' Retardo antes de conectar a la siguiente sesiÃ³n
-                crt.Sleep retardo * 1000
-
+            contadorArchivos = contadorArchivos + 1
         End If
-
     Next
-
+    
+    RegistrarLog archivoLog, "=== PROCESAMIENTO COMPLETADO ==="
+    RegistrarLog archivoLog, "Total archivos procesados: " & contadorArchivos
+ 
 End Sub
 
+Sub Conect_Session(nombreSesion, comandos)
+    Dim comando, resultado
+    
+    RegistrarLog archivoLog, "Conectando a " & nombreSesion
+    
+    ' Intentar conexión
+
+    crt.Session.Connect("/S " & nombreSesion) ' Conectar a la sesión
+
+    If crt.Session.Connected Then
+        RegistrarLog archivoLog, "Conexión exitosa a " & nombreSesion
+        
+        ' Esperar por el prompt inicial
+        if EsperarPrompt(nombreSesion) <> 0 Then
+            RegistrarLog archivoLog, "Error esperando prompt en " & nombreSesion
+            Exit Sub
+        End If
+        
+        ' Configurar terminal para evitar paginación
+        crt.Screen.Send "terminal length 0" & vbCr
+        crt.Screen.WaitForString "#"
+        
+        ' Ejecutar cada comando
+        For Each comando In comandos
+            RegistrarLog archivoLog, "Ejecutando comando: " & comando
+            
+            crt.Screen.Send comando & vbCr
+            resultado = crt.Screen.WaitForString(Array("#", ">", "--More--"), 10)
+            
+            Select Case resultado
+                Case 0
+                    RegistrarLog archivoLog, "Timeout ejecutando: " & comando
+                Case 1
+                    RegistrarLog archivoLog, "Comando completado: " & comando 
+                case 2
+                    crt.Screen.Send "enable" & vbCr ' Enviar enable si es necesario
+                    RegistrarLog archivoLog, "Comando completado: " & comando 
+                Case 3
+                    ProcesarPaginacion()
+            End Select
+            
+            crt.Sleep 1000 ' Pequeña pausa entre comandos
+        Next
+        
+        ' Desconectar
+        crt.Session.Disconnect
+        RegistrarLog archivoLog, "Desconectado de " & nombreSesion
+    Else
+        RegistrarLog archivoLog, "Error conectando a " & nombreSesion & ": " & crt.GetLastErrorMessage
+    End If
+End Sub
+
+Sub ProcesarPaginacion()
+    Do
+        crt.Screen.Send " " ' Enviar espacio para continuar paginación
+        
+        ' Esperar siguiente página o prompt final
+        If crt.Screen.WaitForString("--More--", 1) <> 1 Then
+            Exit Do
+        End If
+    Loop
+End Sub
+
+' Función para registrar en log
 Sub RegistrarLog(rutaArchivoLog, mensaje)
     Dim objFSO, objArchivo
-
+    
+    On Error Resume Next ' Manejo básico de errores
+    
     Set objFSO = CreateObject("Scripting.FileSystemObject")
-    Set objArchivo = objFSO.OpenTextFile(rutaArchivoLog, 8, True) ' 8 para anexar
-    objArchivo.WriteLine Now() & " - " & mensaje
+    Set objArchivo = objFSO.OpenTextFile(rutaArchivoLog, 8, True) ' 8=append, True=crear si no existe
+    
+    objArchivo.WriteLine Now & " - " & mensaje
     objArchivo.Close
+    
+    On Error GoTo 0
 End Sub
+
+' Función para crear archivo de log si no existe
+Sub CrearArchivoLog(ruta, objFSO)
+    If Not objFSO.FileExists(ruta) Then
+        objFSO.CreateTextFile(ruta).Close
+    End If
+End Sub
+
+' Versión corregida de la función EsperarPrompt
+Function EsperarPrompt(nombreSesion)
+    ' Esperar por el prompt de la sesión
+    Dim promptEncontrado
+    
+    ' Esperar por cualquiera de los prompts posibles
+    If crt.Screen.WaitForString("#", 10) Then
+        RegistrarLog archivoLog, "Prompt # detectado en " & nombreSesion
+        EsperarPrompt = 0  ' Éxito
+    ElseIf crt.Screen.WaitForString(">", 2) Then
+        RegistrarLog archivoLog, "Prompt > detectado en " & nombreSesion
+        EsperarPrompt = 0  ' Éxito
+    ElseIf crt.Screen.WaitForString("--more--", 2) Then
+        RegistrarLog archivoLog, "Prompt --more-- detectado en " & nombreSesion
+        EsperarPrompt = 0  ' Éxito
+    Else
+        RegistrarLog archivoLog, "No se detectó prompt válido en " & nombreSesion
+        EsperarPrompt = 1  ' Error
+    End If
+End Function    
+
+Function EsSesionValida(archivo, objFSO)
+    Dim nombreArchivo, extension
+    
+    ' Obtener nombre y extensión limpios
+    nombreArchivo = Trim(archivo.Name)  ' Elimina espacios al inicio/final
+    extension = LCase(objFSO.GetExtensionName(nombreArchivo))
+    
+    ' Depuración - registrar detalles del archivo
+    RegistrarLog archivoLog, "Validando archivo: " & nombreArchivo & _
+                           " | Ext: " & extension & _
+                           " | Tamaño: " & archivo.Size & " bytes" & _
+                           " | FolderData: " & (InStr(1, nombreArchivo, "__FolderData__", vbTextCompare) > 0)
+    
+    ' Condiciones de validación
+    EsSesionValida = (extension = "ini" And _
+                     InStr(1, nombreArchivo, "__FolderData__", vbTextCompare) = 0 And _
+                     archivo.Size > 0)  ' Cambiado a > 0 para aceptar cualquier tamaño
+End Function
