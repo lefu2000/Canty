@@ -1,4 +1,4 @@
-﻿# $language = "VBScript"
+# $language = "VBScript"
 # $Interface = "1.0"
 
 Option Explicit
@@ -7,6 +7,10 @@ Option Explicit
 Dim rutaCarpetaSesiones, objFSO, objCarpeta, archivos, archivo, nombreSesion
 Dim retardo, archivoLog, comandos
 Dim contadorArchivos
+Dim objShell
+Set objShell = CreateObject("WScript.Shell")
+
+
 
 ' Configuración inicial
 crt.Screen.Synchronous = False  ' Habilita modo asincrónico para evitar errores de tiempo de espera
@@ -19,12 +23,31 @@ Sub Main()
     archivoLog = "D:\Usuarios\lriver14\Documents\Log - Falla -Codigo\log-debuging.txt"
     retardo = 5  ' Retardo entre sesiones en segundos
 
-    crt.Session.Script.Load "Conect_Session.vbs"        ' CONEXION A LOS EQUIPOS
-    crt.Session.Script.Load "CrearArchivoLog.vbs"       ' LOG PARA DEBBUGIN
-    crt.Session.Script.Load "EsperarPrompt.vbs"         ' VERIFICA PROMPT PARA CONFIRMAR CONEXION
-    crt.Session.Script.Load "EsSesionValida.vbs"        '
-    crt.Session.Script.Load "ProcesarPaginacion.vbs"    ' PROCESAR PAGINACION Y EVITAR QUE SE TRABE LA SALIDA DE INFORMACION
-    crt.Session.Script.Load "RegistrarLog.vbs"          ' 
+    ' Ejecutar script1
+    objShell.Run "Conect_Session.vbs", 1, True
+
+    ' Ejecutar script2
+    objShell.Run "CrearArchivoLog.vbs", 1, True
+
+    ' Ejecutar script3
+    objShell.Run "EsperarPrompt.vbs", 1, True
+
+    ' Ejecutar script4
+    objShell.Run "EsSesionValida.vbs", 1, True
+
+    ' Ejecutar script5
+    objShell.Run "ProcesarPaginacion.vbs", 1, True
+
+    ' Ejecutar script6
+    objShell.Run "RegistrarLog.vbs", 1, True
+
+
+    'crt.Session.Script.Load "Conect_Session.vbs"        ' CONEXION A LOS EQUIPOS
+    'crt.Session.Script.Load "CrearArchivoLog.vbs"       ' LOG PARA DEBBUGIN
+    'crt.Session.Script.Load "EsperarPrompt.vbs"         ' VERIFICA PROMPT PARA CONFIRMAR CONEXION
+    'crt.Session.Script.Load "EsSesionValida.vbs"        '
+    'crt.Session.Script.Load "ProcesarPaginacion.vbs"    ' PROCESAR PAGINACION Y EVITAR QUE SE TRABE LA SALIDA DE INFORMACION
+    'crt.Session.Script.Load "RegistrarLog.vbs"          ' 
 
     ' Comandos a ejecutar en cada dispositivo
     comandos = Array("show running-config")
@@ -95,10 +118,3 @@ Sub Main()
     RegistrarLog archivoLog, "Total archivos procesados: " & contadorArchivos
  
 End Sub
-
-
-
-
-
-
-
