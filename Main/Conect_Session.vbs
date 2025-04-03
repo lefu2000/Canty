@@ -26,7 +26,14 @@ Sub Conect_Session(nombreSesion, comandos)
             
             crt.Screen.Send comando & vbCr
             resultado = EsperarPrompt(nombreSesion)
-            
+
+            'EsperarPrompt
+            ' 0 = Fallo
+            ' 1 = Comando Show running-config corriendo.
+            ' 2 = Para equipos 7250 Alcatel, pasar a modo administrador.
+            ' 3 = Procesa Paginacion
+
+
             Select Case resultado
                 Case 0
                     RegistrarLog archivoLog, "Timeout ejecutando: " & comando
@@ -42,8 +49,6 @@ Sub Conect_Session(nombreSesion, comandos)
             crt.Sleep 1000 ' Pequeña pausa entre comandos
         Next
         
-        ' Desconectar
-        crt.Session.Disconnect
         RegistrarLog archivoLog, "Desconectado de " & nombreSesion
     Else
         RegistrarLog archivoLog, "Error conectando a " & nombreSesion & ": " & crt.GetLastErrorMessage

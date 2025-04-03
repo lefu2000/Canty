@@ -19,13 +19,12 @@ Sub Main()
     archivoLog = "D:\Usuarios\lriver14\Documents\Log - Falla -Codigo\log-debuging.txt"
     retardo = 5  ' Retardo entre sesiones en segundos
 
-    crt.Session.Script.Load "Conect_Session.vbs"
-    crt.Session.Script.Load "CrearArchivoLog.vbs"
-    crt.Session.Script.Load "EsperarPrompt.vbs"
-    crt.Session.Script.Load "EsSesionValida.vbs"
-    crt.Session.Script.Load "ProcesarPaginacion.vbs"
-    crt.Session.Script.Load "RegistrarLog.vbs"
-
+    crt.Session.Script.Load "Conect_Session.vbs"        ' CONEXION A LOS EQUIPOS
+    crt.Session.Script.Load "CrearArchivoLog.vbs"       ' LOG PARA DEBBUGIN
+    crt.Session.Script.Load "EsperarPrompt.vbs"         ' VERIFICA PROMPT PARA CONFIRMAR CONEXION
+    crt.Session.Script.Load "EsSesionValida.vbs"        '
+    crt.Session.Script.Load "ProcesarPaginacion.vbs"    ' PROCESAR PAGINACION Y EVITAR QUE SE TRABE LA SALIDA DE INFORMACION
+    crt.Session.Script.Load "RegistrarLog.vbs"          ' 
 
     ' Comandos a ejecutar en cada dispositivo
     comandos = Array("show running-config")
@@ -63,12 +62,6 @@ Sub Main()
             nombreSesion = objFSO.GetBaseName(archivo.Name)
             RegistrarLog archivoLog, "Procesando archivo: " & nombreSesion
             
-            ' Desconectar si hay sesión activa
-            If crt.Session.Connected Then
-                crt.Session.Disconnect
-                crt.Sleep 2000 ' Esperar 2 segundos
-            End If
-            
             ' Conectar y ejecutar comandos
 
             ' Ejemplo con reintentos automáticos
@@ -93,6 +86,8 @@ Sub Main()
             crt.Sleep retardo * 1000
 
             contadorArchivos = contadorArchivos + 1
+            ' Desconectar
+            crt.Session.Disconnect
         End If
     Next
     
