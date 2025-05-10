@@ -1,76 +1,55 @@
+def connect_network_device(ip, credentials, SCRIPT_TAB, timeout=5):
+    """
+    Conecta a un dispositivo de red usando SSH o Telnet como fallback
+    Args:
+        ip (str): Dirección IP del dispositivo
+        credentials (dict): Diccionario con {'username': str, 'password': str}
+        timeout (int): Tiempo de espera en segundos
+    Returns:
+        dict: Información del dispositivo y estado de conexión
+    """
+    # Estructura de información del dispositivo
+    device = {
+        "hostname": "",
+        "username": credentials['username'],
+        "conn": "",
+        "status": 2  # Por defecto asumimos fallo (0=éxito, 1=auth fail, 2=conn fail)
+    }
 
-def connect_Session(ip,username, password):
-    
-    # ip: host
-    # username: cualquier usuario
-    # password: contrasena del usuario
-
-    # Conectar a la sesión
-    crt.Session.Connect("/SSH2 /L {} /PASSWORD {} {}".format(
-        username, password, ip))
-    
-    # Esperar conexión y enviar comandos
-    crt.Screen.WaitForString("$")
-    crt.Screen.Send("ls -l\r")
-
-
-
-Conectar por SSH y por Telnet
-
-
-
-
-
-
-
-def connect_network_device(ip, credentials, timeout=10):
-
-    #Device information
-    device = {"hostname": "", "username": credentials['username'], "proveedor" : "", "conn" : "ssh", "status" : 0}
-
-    """Versión especializada para equipos """
-    for protocol in ["SSH", "Telnet"]:
+    for protocol in ["SSH2", "Telnet"]:
         try:
-            if protocol == "SSH":
+            if protocol == "SSH2":
                 conn_str = f"/SSH2 /L {credentials['username']} /PASSWORD {credentials['password']} {ip}"
                 device["conn"] = "SSH2"
             else:
                 conn_str = f"/TELNET {ip}"
                 device["conn"] = "Telnet"
 
-            crt.Session.Connect(conn_str)
+            SCRIPT_TAB.Session.ConnectInTab(conn_str)
             
-            # Manejo de prompts genéricos para equipos de red
-            result = crt.Screen.WaitForStrings([":", "#", ">", "assword", "ogin"], timeout)
+            # Esperar diferentes tipos de prompts
+            result = SCRIPT_TAB.Screen.WaitForStrings(["#", ">", "$", "assword:", "ogin:", "User Name:", "login:"], timeout)
             
-            if result in [4, 5]:  # Password o login prompt
-                crt.Screen.Send(credentials['username'] + "\r")
-                result = crt.Screen.WaitForStrings(["#", ">"], timeout)
+            # Si pide credenciales
+            if result in [4, 5, 6, 7]:  # Password o login prompts
+                if result in [5, 6, 7]:  # Login prompt
+                    SCRIPT_TAB.Screen.Send(credentials['username'] + "\r")
+                    SCRIPT_TAB.Screen.WaitForStrings(["assword:", "Password:"], timeout)
+                
+                SCRIPT_TAB.Screen.Send(credentials['password'] + "\r")
+                result = SCRIPT_TAB.Screen.WaitForStrings(["#", ">", "$"], timeout)
             
-            if result in [1, 2, 3]:  # Prompt encontrado
-                crt.Screen.Send("terminal length 0\r")
-                return True
+            # Si obtenemos prompt de comando
+            if result in [1, 2, 3]:
+                device["status"] = 0  # Éxito
+                SCRIPT_TAB.Screen.Send("terminal length 0\r" if result in [1, 2] else "\r")
+                
+                return device
+            else:
+                device["status"] = 1  # Fallo de autenticación
+                return device
                 
         except Exception:
-            continue
+            continue  # Continuar con el siguiente protocolo si falla
     
-    return device
-
-
-device["SO"] = "ios"
-device["status"] = 2
-
-
-
-Diccionario de Estado del Dispositivo
-La función devuelve un diccionario con esta estructura:
-
-Clave	Valores	Descripción
-hostname	string	Nombre del host (vacío inicialmente)
-username	string	Nombre de usuario usado
-SO	"ios" o ""	Sistema operativo detectado
-conn	"ssh" o "telnet"	Método de conexión usado
-status	0, 1, 2	Estado de la conexión:
-0 = Éxito	
-1 = Error autenticación	
-2 = Error conexión	
+    return device  # Retorna device con status=2 si ambos protocolos fallan
