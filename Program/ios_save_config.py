@@ -102,7 +102,7 @@ def main():
     SCRIPT_TAB.Screen.IgnoreEscape = True
     SCRIPT_TAB.Screen.Synchronous = True
 
-#    while True:
+#    while True:    
 #        if not SCRIPT_TAB.Screen.WaitForCursor(1):
 #            break
 
