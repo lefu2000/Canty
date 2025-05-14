@@ -102,9 +102,9 @@ def main():
     SCRIPT_TAB.Screen.IgnoreEscape = True
     SCRIPT_TAB.Screen.Synchronous = True
 
-    while True:
-        if not SCRIPT_TAB.Screen.WaitForCursor(1):
-            break
+#    while True:
+#        if not SCRIPT_TAB.Screen.WaitForCursor(1):
+#            break
 
     log_directory = os.path.join(path1, 'save')
 
@@ -197,7 +197,6 @@ def main():
         elif result["status"]  == 2:
             connect_result_file.writerow([router['router'],router['ip'],router["proveedor"],result["username"],"FAILED TO CONNECT"])
         
-
     file_connect.close()
     file_routers.close()
     crt.Screen.Synchronous = False
