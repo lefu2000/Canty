@@ -25,6 +25,9 @@ def connect_network_device(ip, credentials, SCRIPT_TAB, timeout=5):
                 conn_str = f"/TELNET {ip}"
                 device["conn"] = "Telnet"
 
+            if Session.Connected:
+                SCRIPT_TAB.Session.Disconnect
+
             SCRIPT_TAB.Session.Connect(conn_str)
             
             # Esperar diferentes tipos de prompts

@@ -15,7 +15,7 @@ if not ScriptPath in sys.path:
 import csv
 from datetime import date
 import seccrt
-import Connec_Session
+import Connect_Session
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,17 +26,17 @@ def main():
     SCRIPT_TAB = crt.GetScriptTab()
 
     #Valida que haya una sesion activa antes de ejecutar el script.
-    if not SCRIPT_TAB.Session.Connected:
-        # Crear nueva pestaña con la sesión "Default" (ajusta según necesites)
-        new_tab = crt.Session.ConnectInTab("/S \"Default\"")
-        time.sleep(1)  # Esperar 1 segundo para estabilización
+#    if not SCRIPT_TAB.Session.Connected:
+#        # Crear nueva pestaña con la sesión "Default" (ajusta según necesites)
+#        new_tab = crt.Session.ConnectInTab("/S Default")
+#        time.sleep(1)  # Esperar 1 segundo para estabilización
             
-        # Verificar si se creó correctamente
-        if new_tab is None:
-            crt.Dialog.MessageBox("Error al crear nueva pestaña.", "Error")
-            return
+#        # Verificar si se creó correctamente
+#        if new_tab is None:
+#            crt.Dialog.MessageBox("Error al crear nueva pestaña.", "Error")
+#            return
         
-        SCRIPT_TAB = new_tab
+#        SCRIPT_TAB = new_tab
         #Verificacion de Pestaña realizada.
 
 
@@ -132,7 +132,7 @@ def main():
 
     for router in routers:
         # Verificar que existen todas las claves necesarias
-        required_keys = ['router', 'ip', 'Proveedor']
+        required_keys = ['router', 'ip', 'proveedor']
         if not all(key in router for key in required_keys):
             error_msg = f"Fila inválida en CSV. Faltan datos: {router}"
             crt.Dialog.MessageBox(error_msg)
@@ -145,11 +145,11 @@ def main():
 
         ##### Start  - Connect to the Router  #######
         if user_credentials != 1:
-            result = Connec_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
+            result = Connect_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
             if result["status"] == 1 and local_user_credentials != 1:
-                result = Connec_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
+                result = Connect_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
         elif local_user_credentials != 1:
-            result = Connec_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
+            result = Connect_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
         ##### End  - Connect to the Router  #######
 
         ##### Start  - Connection Established with router, now SHOW  #######
@@ -174,7 +174,6 @@ def main():
             else:
                 status = "FAILED. PROVEEDOR NO SOPORTADO."
                 SCRIPT_TAB.Screen.Send("quit\r")
-                SCRIPT_TAB.Screen.WaitForStrings(["@Coding-Networks"], 10)
                 connect_result_file.writerow([router['router'], router['ip'], result["username"], result["conn"], status])
                 continue
 
@@ -182,9 +181,8 @@ def main():
 
             connect_result_file.writerow([router['router'],router['ip'],result["username"],result["conn"],status])
 
-            SCRIPT_TAB.Screen.Send("quit\r")
+            SCRIPT_TAB.Session.Disconnect
 
-            SCRIPT_TAB.Screen.WaitForStrings(["@Coding-Networks"], 10)
 
             filep = open(log_file_name, 'wb+')
 
