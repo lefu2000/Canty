@@ -108,7 +108,8 @@ def show_conf_statistics(commands, SCRIPT_TAB):
     #ReadString return a String with the configuration
     result = SCRIPT_TAB.Screen.ReadString(["!end"])
     result = result.strip()
-    SCRIPT_TAB.Screen.Send(chr(26))
+    clear_buffer(SCRIPT_TAB)
+#    SCRIPT_TAB.Screen.Send(chr(26))
     return result
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -122,3 +123,15 @@ def load_files(file_name,extension,SCRIPT_TAB):
             return filesource
         else:
             SCRIPT_TAB.Dialog.MessageBox("Este NO es el archivo" + file_name + ", Intente de Nuevo")
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Función para limpiar buffer
+def clear_buffer(tab):
+    tab.Screen.Send("\r\n")
+    tab.Screen.WaitForString("\r\n", 1)
+    tab.Screen.Send("\x03\x03")  # Múltiples Ctrl+C
+    time.sleep(1)
+
+# Usar antes de cada nueva conexión
+clear_buffer(SCRIPT_TAB)

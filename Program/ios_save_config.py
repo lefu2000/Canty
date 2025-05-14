@@ -42,7 +42,7 @@ def main():
 
     #List of commands to execute // The commands depend on the model and supplier
     COMMANDS_ZTE = [
-        "enable"
+        "enable",
         "terminal length 0",
         "show running-config",
         "!end"
@@ -120,7 +120,7 @@ def main():
     connect_result_file = csv.writer(file_connect)
 
     # Table Headers (corregido también las comillas)
-    connect_result_file.writerow(["router", "ip", "username", "connection", "status"])
+    connect_result_file.writerow(["router", "ip","proveedor", "username", "connection", "status"])
 
     #file_connect = open(connect_result, 'wb')
     #file_routers = open(router_list, 'r')
@@ -174,15 +174,13 @@ def main():
             else:
                 status = "FAILED. PROVEEDOR NO SOPORTADO."
                 SCRIPT_TAB.Screen.Send("quit\r")
-                connect_result_file.writerow([router['router'], router['ip'], result["username"], result["conn"], status])
+                connect_result_file.writerow([router['router'], router['ip'],router["proveedor"], result["username"], result["conn"], status])
                 continue
 
         
+            connect_result_file.writerow([router['router'],router['ip'],router["proveedor"],result["username"],result["conn"],status])
 
-            connect_result_file.writerow([router['router'],router['ip'],result["username"],result["conn"],status])
-
-            SCRIPT_TAB.Session.Disconnect
-
+            SCRIPT_TAB.Session.Disconnect()
 
             filep = open(log_file_name, 'wb+')
 
@@ -191,7 +189,8 @@ def main():
 
             # Close the log file
             filep.close()
-
+        
+        #"router", "ip","proveedor", "username", "connection", "status"
         elif result["status"]  == 1:
             connect_result_file.writerow([router['router'],router['ip'],router["proveedor"],result["username"],"NOT AUTHENTICATE"])
         elif result["status"]  == 2:

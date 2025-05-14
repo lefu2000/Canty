@@ -27,7 +27,7 @@ def connect_network_device(ip, credentials, SCRIPT_TAB, timeout=10):
 
             if SCRIPT_TAB.Session.Connected:
                 SCRIPT_TAB.Session.Disconnect()
-
+            
             SCRIPT_TAB.Session.Connect(conn_str)
 
             # Lista mejorada de prompts a detectar
