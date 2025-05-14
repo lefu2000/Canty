@@ -20,17 +20,19 @@ import Connect_Session
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def main():
+    #Return the Tab or Session window from which the script was started
+    SCRIPT_TAB = crt.GetScriptTab()
 
     # Instruct WaitForString and ReadString to ignore escape sequences when
 	# detecting and capturing data received from the remote.
     SCRIPT_TAB.Screen.IgnoreEscape = True
     SCRIPT_TAB.Screen.Synchronous = True
     SCRIPT_TAB.Screen.SynchronousTimeout = 60    
-    # Ignorar verificación de host keys (sólo para este script)
+
+    # Ignorar verificación de host keys
     SCRIPT_TAB.Session.Config.Set("SSH2 HostKey Acceptance", "Accept Automatically")
 
-    #Return the Tab or Session window from which the script was started
-    SCRIPT_TAB = crt.GetScriptTab()
+
 
     #List of commands to execute // The commands depend on the model and supplier
     COMMANDS_ZTE = [
