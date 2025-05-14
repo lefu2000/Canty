@@ -196,6 +196,7 @@ def main():
             connect_result_file.writerow([router['router'],router['ip'],router["proveedor"],result["username"],"NOT AUTHENTICATE"])
         elif result["status"]  == 2:
             connect_result_file.writerow([router['router'],router['ip'],router["proveedor"],result["username"],"FAILED TO CONNECT"])
+        
 
     file_connect.close()
     file_routers.close()
