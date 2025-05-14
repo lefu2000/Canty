@@ -15,6 +15,7 @@ if not ScriptPath in sys.path:
 import csv
 from datetime import date
 import seccrt
+import Connec_Session
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -23,6 +24,21 @@ def main():
 
     #Return the Tab or Session window from which the script was started
     SCRIPT_TAB = crt.GetScriptTab()
+
+    #Valida que haya una sesion activa antes de ejecutar el script.
+    if not SCRIPT_TAB.Session.Connected:
+        # Crear nueva pestaña con la sesión "Default" (ajusta según necesites)
+        new_tab = crt.Session.ConnectInTab("/S \"Default\"")
+        time.sleep(1)  # Esperar 1 segundo para estabilización
+            
+        # Verificar si se creó correctamente
+        if new_tab is None:
+            crt.Dialog.MessageBox("Error al crear nueva pestaña.", "Error")
+            return
+        
+        SCRIPT_TAB = new_tab
+        #Verificacion de Pestaña realizada.
+
 
     #List of commands to execute // The commands depend on the model and supplier
     COMMANDS_ZTE = [
@@ -49,13 +65,7 @@ def main():
         "ALCATEL",
         "HUAWEI"
     ]
-
-    #Valida que haya una sesion activa antes de ejecutar el script.
-    if not SCRIPT_TAB.Session.Connected:
-
-        crt.Dialog.MessageBox("Not Connected.  Please connect before running this script.")
-        return
-
+    
     ##### Start  - Script Run Confirmation  ######
     msg_box_result = crt.Dialog.MessageBox("Do you want to run the script?", "Connect Routers Script", ICON_QUESTION | BUTTON_YESNO | DEFBUTTON2 )
     if msg_box_result == IDNO:
@@ -135,14 +145,11 @@ def main():
 
         ##### Start  - Connect to the Router  #######
         if user_credentials != 1:
-            result = seccrt.connect_to_router_sshgateway(ip,user_credentials["username"],
-                                                        user_credentials["password"], SCRIPT_TAB)
+            result = Connec_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
             if result["status"] == 1 and local_user_credentials != 1:
-                result = seccrt.connect_to_router_sshgateway(ip,local_user_credentials["username"],
-                                                            local_user_credentials["password"], SCRIPT_TAB)
+                result = Connec_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
         elif local_user_credentials != 1:
-            result = seccrt.connect_to_router_sshgateway(ip,local_user_credentials["username"],
-                                                        local_user_credentials["password"], SCRIPT_TAB)
+            result = Connec_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
         ##### End  - Connect to the Router  #######
 
         ##### Start  - Connection Established with router, now SHOW  #######
@@ -162,7 +169,7 @@ def main():
                     command = COMMANDS_HUAWEI  
 
 
-            # Código para dispositivos de estos proveedores
+                # Código para dispositivos de estos proveedores
                 result_log = seccrt.show_conf_statistics(command, SCRIPT_TAB)
             else:
                 status = "FAILED. PROVEEDOR NO SOPORTADO."
@@ -188,9 +195,9 @@ def main():
             filep.close()
 
         elif result["status"]  == 1:
-            connect_result_file.writerow([router['router'],router['ip'],result["username"],"NOT AUTHENTICATE"])
+            connect_result_file.writerow([router['router'],router['ip'],router["proveedor"],result["username"],"NOT AUTHENTICATE"])
         elif result["status"]  == 2:
-            connect_result_file.writerow([router['router'],router['ip'],result["username"],"FAILED TO CONNECT"])
+            connect_result_file.writerow([router['router'],router['ip'],router["proveedor"],result["username"],"FAILED TO CONNECT"])
 
     file_connect.close()
     file_routers.close()
