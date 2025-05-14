@@ -21,27 +21,16 @@ import Connect_Session
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def main():
 
+    # Instruct WaitForString and ReadString to ignore escape sequences when
+	# detecting and capturing data received from the remote.
+    SCRIPT_TAB.Screen.IgnoreEscape = True
+    SCRIPT_TAB.Screen.Synchronous = True
+    SCRIPT_TAB.Screen.SynchronousTimeout = 60    
+    # Ignorar verificación de host keys (sólo para este script)
+    SCRIPT_TAB.Session.Config.Set("SSH2 HostKey Acceptance", "Accept Automatically")
 
     #Return the Tab or Session window from which the script was started
     SCRIPT_TAB = crt.GetScriptTab()
-
-    # Ignorar verificación de host keys (sólo para este script)
-    crt.Session.Config.Set("SSH2 HostKey Acceptance", "Accept Automatically")
-
-    #Valida que haya una sesion activa antes de ejecutar el script.
-#    if not SCRIPT_TAB.Session.Connected:
-#        # Crear nueva pestaña con la sesión "Default" (ajusta según necesites)
-#        new_tab = crt.Session.ConnectInTab("/S Default")
-#        time.sleep(1)  # Esperar 1 segundo para estabilización
-            
-#        # Verificar si se creó correctamente
-#        if new_tab is None:
-#            crt.Dialog.MessageBox("Error al crear nueva pestaña.", "Error")
-#            return
-        
-#        SCRIPT_TAB = new_tab
-        #Verificacion de Pestaña realizada.
-
 
     #List of commands to execute // The commands depend on the model and supplier
     COMMANDS_ZTE = [
@@ -99,15 +88,6 @@ def main():
     connect_result = os.path.join(path1, "save_results.csv")
 
     ##### End  - Script Select Routers to Connect ######
-
-	# Instruct WaitForString and ReadString to ignore escape sequences when
-	# detecting and capturing data received from the remote.
-    SCRIPT_TAB.Screen.IgnoreEscape = True
-    SCRIPT_TAB.Screen.Synchronous = True
-
-#    while True:    
-#        if not SCRIPT_TAB.Screen.WaitForCursor(1):
-#            break
 
     log_directory = os.path.join(path1, 'save')
 
