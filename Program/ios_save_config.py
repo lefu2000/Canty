@@ -25,6 +25,9 @@ def main():
     #Return the Tab or Session window from which the script was started
     SCRIPT_TAB = crt.GetScriptTab()
 
+    # Ignorar verificación de host keys (sólo para este script)
+    crt.Session.Config.Set("SSH2 HostKey Acceptance", "Accept Automatically")
+
     #Valida que haya una sesion activa antes de ejecutar el script.
 #    if not SCRIPT_TAB.Session.Connected:
 #        # Crear nueva pestaña con la sesión "Default" (ajusta según necesites)
