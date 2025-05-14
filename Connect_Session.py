@@ -31,16 +31,16 @@ def connect_network_device(ip, credentials, SCRIPT_TAB, timeout=5):
             SCRIPT_TAB.Session.Connect(conn_str)
 
             # Esperar diferentes tipos de prompts
-            result = SCRIPT_TAB.Screen.WaitForStrings(["#", ">", "$", "Password:", "assword:", "ogin:", "Username: ", "sername"], timeout)
+            result = SCRIPT_TAB.Screen.WaitForString(["#", ">", "$", "Password:", "assword:", "ogin:", "Username: ", "sername"], timeout)
             
             # Si pide credenciales
             if result in [4, 5, 6, 7, 8]:  # Password o login prompts
                 if result in [6, 7, 8]:  # Login prompt
                     SCRIPT_TAB.Screen.Send(credentials['username'] + "\r")
-                    SCRIPT_TAB.Screen.WaitForStrings(["assword:", "Password:"], timeout)
+                    SCRIPT_TAB.Screen.WaitForString(["assword:", "Password:"], timeout)
                 
                 SCRIPT_TAB.Screen.Send(credentials['password'] + "\r")
-                result = SCRIPT_TAB.Screen.WaitForStrings(["#", ">", "$"], timeout)
+                result = SCRIPT_TAB.Screen.WaitForString(["#", ">", "$"], timeout)
             
             # Si obtenemos prompt de comando
             if result in [1, 2, 3]:
