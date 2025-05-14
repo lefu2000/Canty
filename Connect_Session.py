@@ -17,6 +17,11 @@ def connect_network_device(ip, credentials, SCRIPT_TAB, timeout=5):
     }
 
     for protocol in ["SSH2", "Telnet"]:
+
+        #Asigna una preferencia para entrar en los equipos.
+        preferred_kex = "diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha1"
+        SCRIPT_TAB.Session.Config.Set("KeyExchange", preferred_kex)
+
         try:
             if protocol == "SSH2":
                 conn_str = f"/SSH2 /L {credentials['username']} /PASSWORD {credentials['password']} {ip}"
@@ -31,16 +36,16 @@ def connect_network_device(ip, credentials, SCRIPT_TAB, timeout=5):
             SCRIPT_TAB.Session.Connect(conn_str)
 
             # Esperar diferentes tipos de prompts
-            result = SCRIPT_TAB.Screen.WaitForString(["#", ">", "$", "Password:", "assword:", "ogin:", "Username: ", "sername"], timeout)
+            result = SCRIPT_TAB.Screen.WaitForStrings(["#", ">", "$", "Password:", "assword:", "ogin:", "Username: ", "sername"], timeout)
             
             # Si pide credenciales
             if result in [4, 5, 6, 7, 8]:  # Password o login prompts
                 if result in [6, 7, 8]:  # Login prompt
                     SCRIPT_TAB.Screen.Send(credentials['username'] + "\r")
-                    SCRIPT_TAB.Screen.WaitForString(["assword:", "Password:"], timeout)
+                    SCRIPT_TAB.Screen.WaitForStrings(["assword:", "Password:"], timeout)
                 
                 SCRIPT_TAB.Screen.Send(credentials['password'] + "\r")
-                result = SCRIPT_TAB.Screen.WaitForString(["#", ">", "$"], timeout)
+                result = SCRIPT_TAB.Screen.WaitForStrings(["#", ">", "$"], timeout)
             
             # Si obtenemos prompt de comando
             if result in [1, 2, 3]:
