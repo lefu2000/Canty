@@ -32,8 +32,6 @@ def main():
     # Ignorar verificación de host keys
     SCRIPT_TAB.Session.Config.Set("SSH2 HostKey Acceptance", "Accept Automatically")
 
-
-
     #List of commands to execute // The commands depend on the model and supplier
     COMMANDS_ZTE = [
         "enable",
