@@ -15,34 +15,26 @@ if not ScriptPath in sys.path:
 import csv
 from datetime import date
 import seccrt
-import Connec_Session
+import Connect_Session
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def main():
-
-
     #Return the Tab or Session window from which the script was started
     SCRIPT_TAB = crt.GetScriptTab()
 
-    #Valida que haya una sesion activa antes de ejecutar el script.
-    if not SCRIPT_TAB.Session.Connected:
-        # Crear nueva pestaña con la sesión "Default" (ajusta según necesites)
-        new_tab = crt.Session.ConnectInTab("/S \"Default\"")
-        time.sleep(1)  # Esperar 1 segundo para estabilización
-            
-        # Verificar si se creó correctamente
-        if new_tab is None:
-            crt.Dialog.MessageBox("Error al crear nueva pestaña.", "Error")
-            return
-        
-        SCRIPT_TAB = new_tab
-        #Verificacion de Pestaña realizada.
+    # Instruct WaitForString and ReadString to ignore escape sequences when
+	# detecting and capturing data received from the remote.
+    SCRIPT_TAB.Screen.IgnoreEscape = True
+    SCRIPT_TAB.Screen.Synchronous = True
+    SCRIPT_TAB.Screen.SynchronousTimeout = 60    
 
+    # Ignorar verificación de host keys
+    SCRIPT_TAB.Session.Config.Set("SSH2 HostKey Acceptance", "Accept Automatically")
 
     #List of commands to execute // The commands depend on the model and supplier
     COMMANDS_ZTE = [
-        "enable"
+        "enable",
         "terminal length 0",
         "show running-config",
         "!end"
@@ -97,15 +89,6 @@ def main():
 
     ##### End  - Script Select Routers to Connect ######
 
-	# Instruct WaitForString and ReadString to ignore escape sequences when
-	# detecting and capturing data received from the remote.
-    SCRIPT_TAB.Screen.IgnoreEscape = True
-    SCRIPT_TAB.Screen.Synchronous = True
-
-    while True:
-        if not SCRIPT_TAB.Screen.WaitForCursor(1):
-            break
-
     log_directory = os.path.join(path1, 'save')
 
     if not os.path.exists(log_directory):
@@ -120,7 +103,7 @@ def main():
     connect_result_file = csv.writer(file_connect)
 
     # Table Headers (corregido también las comillas)
-    connect_result_file.writerow(["router", "ip", "username", "connection", "status"])
+    connect_result_file.writerow(["router", "ip","proveedor", "username", "connection", "status"])
 
     #file_connect = open(connect_result, 'wb')
     #file_routers = open(router_list, 'r')
@@ -132,7 +115,7 @@ def main():
 
     for router in routers:
         # Verificar que existen todas las claves necesarias
-        required_keys = ['router', 'ip', 'Proveedor']
+        required_keys = ['router', 'ip', 'proveedor']
         if not all(key in router for key in required_keys):
             error_msg = f"Fila inválida en CSV. Faltan datos: {router}"
             crt.Dialog.MessageBox(error_msg)
@@ -145,11 +128,11 @@ def main():
 
         ##### Start  - Connect to the Router  #######
         if user_credentials != 1:
-            result = Connec_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
+            result = Connect_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
             if result["status"] == 1 and local_user_credentials != 1:
-                result = Connec_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
+                result = Connect_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
         elif local_user_credentials != 1:
-            result = Connec_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
+            result = Connect_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
         ##### End  - Connect to the Router  #######
 
         ##### Start  - Connection Established with router, now SHOW  #######
@@ -174,17 +157,13 @@ def main():
             else:
                 status = "FAILED. PROVEEDOR NO SOPORTADO."
                 SCRIPT_TAB.Screen.Send("quit\r")
-                SCRIPT_TAB.Screen.WaitForStrings(["@Coding-Networks"], 10)
-                connect_result_file.writerow([router['router'], router['ip'], result["username"], result["conn"], status])
+                connect_result_file.writerow([router['router'], router['ip'],router["proveedor"], result["username"], result["conn"], status])
                 continue
 
         
+            connect_result_file.writerow([router['router'],router['ip'],router["proveedor"],result["username"],result["conn"],status])
 
-            connect_result_file.writerow([router['router'],router['ip'],result["username"],result["conn"],status])
-
-            SCRIPT_TAB.Screen.Send("quit\r")
-
-            SCRIPT_TAB.Screen.WaitForStrings(["@Coding-Networks"], 10)
+            SCRIPT_TAB.Session.Disconnect()
 
             filep = open(log_file_name, 'wb+')
 
@@ -193,12 +172,13 @@ def main():
 
             # Close the log file
             filep.close()
-
+        
+        #"router", "ip","proveedor", "username", "connection", "status"
         elif result["status"]  == 1:
             connect_result_file.writerow([router['router'],router['ip'],router["proveedor"],result["username"],"NOT AUTHENTICATE"])
         elif result["status"]  == 2:
             connect_result_file.writerow([router['router'],router['ip'],router["proveedor"],result["username"],"FAILED TO CONNECT"])
-
+        
     file_connect.close()
     file_routers.close()
     crt.Screen.Synchronous = False
