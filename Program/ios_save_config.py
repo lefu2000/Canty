@@ -21,16 +21,12 @@ import Connect_Session
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def main():
     #Return the Tab or Session window from which the script was started
-    SCRIPT_TAB = crt.GetScriptTab()
+    SCRIPT_TAB = crt.GetScriptTab() 
 
     # Instruct WaitForString and ReadString to ignore escape sequences when
 	# detecting and capturing data received from the remote.
     SCRIPT_TAB.Screen.IgnoreEscape = True
-    SCRIPT_TAB.Screen.Synchronous = True
-    SCRIPT_TAB.Screen.SynchronousTimeout = 60    
-
-    # Ignorar verificación de host keys
-    SCRIPT_TAB.Session.Config.Set("SSH2 HostKey Acceptance", "Accept Automatically")
+    SCRIPT_TAB.Screen.Synchronous = True   
 
     #List of commands to execute // The commands depend on the model and supplier
     COMMANDS_ZTE = [
@@ -105,14 +101,6 @@ def main():
     # Table Headers (corregido también las comillas)
     connect_result_file.writerow(["router", "ip","proveedor", "username", "connection", "status"])
 
-    #file_connect = open(connect_result, 'wb')
-    #file_routers = open(router_list, 'r')
-    #routers = csv.DictReader(file_routers)
-    #connect_result_file = csv.writer(file_connect)
-
-    #Table Headers
-    #connect_result_file.writerow(["router","ip","username","connection","status"])
-
     for router in routers:
         # Verificar que existen todas las claves necesarias
         required_keys = ['router', 'ip', 'proveedor']
@@ -128,11 +116,11 @@ def main():
 
         ##### Start  - Connect to the Router  #######
         if user_credentials != 1:
-            result = Connect_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
+            result = Connect_Session.connect_network_device(ip, user_credentials, crt)
             if result["status"] == 1 and local_user_credentials != 1:
-                result = Connect_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
+                result = Connect_Session.connect_network_device(ip, user_credentials, crt)
         elif local_user_credentials != 1:
-            result = Connect_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
+            result = Connect_Session.connect_network_device(ip, user_credentials, crt)
         ##### End  - Connect to the Router  #######
 
         ##### Start  - Connection Established with router, now SHOW  #######

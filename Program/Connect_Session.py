@@ -28,7 +28,18 @@ def connect_network_device(ip, credentials, SCRIPT_TAB, timeout=10):
             if SCRIPT_TAB.Session.Connected:
                 SCRIPT_TAB.Session.Disconnect()
             
+
+            # Instruct WaitForString and ReadString to ignore escape sequences when
+            # detecting and capturing data received from the remote.
+            SCRIPT_TAB.Screen.IgnoreEscape = True
+            SCRIPT_TAB.Screen.Synchronous = True   
+
+            # Ignorar verificación de host keys
+            crt.Session.Config.Set("SSH2 HostKey Acceptance", "Accept Automatically")
+
             SCRIPT_TAB.Session.Connect(conn_str)
+
+            SCRIPT_TAB.Screen.SynchronousTimeout = 60 #Limita el tiempo de conexion
 
             # Lista mejorada de prompts a detectar
             prompts = [
