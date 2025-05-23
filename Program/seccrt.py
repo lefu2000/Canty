@@ -42,7 +42,7 @@ def show_conf_statistics(commands, SCRIPT_TAB):
     result = SCRIPT_TAB.Screen.ReadString(["!end"])
     result = result.strip()
     clear_buffer(SCRIPT_TAB)
-#    SCRIPT_TAB.Screen.Send(chr(26))
+
     return result
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
