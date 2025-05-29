@@ -1,11 +1,12 @@
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # seccrt.py
 #
 # Description: This is a module for functions
 # Author: Luis Rivera
-# Email: michadom21@gmail.com
-# Last Date Modified: 2025-05-14
-# Version: 0.0.1
+# Email: lriver14@gmail.com
+# Last Date Modified: 2025-05-29
+# Version: 0.1
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def get_user_authentication_data(SCRIPT_TAB):
@@ -41,7 +42,6 @@ def show_conf_statistics(commands, SCRIPT_TAB):
     #ReadString return a String with the configuration
     result = SCRIPT_TAB.Screen.ReadString(["!end"])
     result = result.strip()
-    clear_buffer(SCRIPT_TAB)
 
     return result
 
@@ -59,12 +59,3 @@ def load_files(file_name,extension,SCRIPT_TAB):
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Función para limpiar buffer
-def clear_buffer(tab):
-    tab.Screen.Send("\r\n")
-    tab.Screen.WaitForString("\r\n", 1)
-    tab.Screen.Send("\x03\x03")  # Múltiples Ctrl+C
-    time.sleep(1)
-
-# Usar antes de cada nueva conexión
-clear_buffer(SCRIPT_TAB)

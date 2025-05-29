@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Device</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .device-container {
+            padding: 40px;
+            background-color: #1B263B;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 90%;
+            margin: 20px auto;
+            color: #E0E1DD;
+            box-sizing: border-box;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            color: #778DA9;
+            font-size: 2rem;
+            font-weight: 700;
+            width: 48%;
+            box-sizing: border-box;
+        }
+
+        .back-button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: #778DA9;
+            color: #E0E1DD;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-button:hover {
+            background-color: #415A77;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 7px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-button:active {
+            background-color: #1B263B;
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #415A77;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #415A77;
+            border-radius: 6px;
+            background-color: #E0E1DD;
+            color: #0D1B2A;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #778DA9;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-device-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: #778DA9;
+            color: #E0E1DD;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin-top: 30px;
+        }
+
+        .add-device-button:hover {
+            background-color: #415A77;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 7px rgba(0, 0, 0, 0.2);
+        }
+
+        .add-device-button:active {
+            background-color: #1B263B;
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .error-message {
+            color: #E53E3E;
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+            background-color: #F565651A;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #E53E3E;
+            display: none;
+        }
+
+         @media (max-width: 768px) {
+            .device-container {
+                padding: 30px;
+                width: 95%;
+            }
+            .page-title{
+               font-size: 1.5rem;
+               width: 100%;
+               margin-bottom: 20px;
+            }
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .back-button{
+                margin-bottom: 20px;
+            }
+            .form-group input, .form-group label {
+                font-size: 1rem;
+            }
+
+        }
+         @media (max-width: 480px) {
+            .form-group input{
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+             .form-group label{
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="device-container">
+        <div class="page-header">
+            <h1 class="page-title">Add New Device</h1>
+            <button class="back-button" id="back-button">Go Back to Dashboard</button>
+        </div>
+        <div class="form-group">
+            <label for="acronym">Acronym</label>
+            <input type="text" id="acronym" placeholder="Enter acronym">
+        </div>
+        <div class="form-group">
+            <label for="device-ip">Device IP</label>
+            <input type="text" id="device-ip" placeholder="Enter device IP">
+        </div>
+        <div class="form-group">
+            <label for="device-name">Device Name</label>
+            <input type="text" id="device-name" placeholder="Enter device name">
+        </div>
+         <div class="form-group">
+            <label for="model">Model</label>
+            <input type="text" id="model" placeholder="Enter model">
+        </div>
+        <button class="add-device-button" id="add-device-button">Add Device</button>
+        <div id="error-message" class="error-message"></div>
+    </div>
+    <script>
+        const backButton = document.getElementById('back-button');
+        const addDeviceButton = document.getElementById('add-device-button');
+        const errorMessage = document.getElementById('error-message');
+
+        // In a real application, you would fetch existing device names from the server.
+        // For this example, we'll use a hardcoded array.
+        const existingDeviceNames = ['Diva System', 'Nova System', 'Polar System'];
+
+        backButton.addEventListener('click', () => {
+            window.location.href = 'dashboard.html';
+        });
+
+        addDeviceButton.addEventListener('click', () => {
+            const acronym = document.getElementById('acronym').value.trim();
+            const deviceIp = document.getElementById('device-ip').value.trim();
+            const deviceName = document.getElementById('device-name').value.trim();
+             const model = document.getElementById('model').value.trim();
+
+            let hasErrors = false;
+            errorMessage.textContent = '';
+            errorMessage.style.display = 'none';
+
+            // Validate Acronym (XXX-XXX-00)
+            const acronymRegex = /^[A-Za-z]{3}-[A-Za-z]{3}-\d{2}$/;
+            if (!acronymRegex.test(acronym)) {
+                errorMessage.textContent += 'Invalid Acronym format. Use XXX-XXX-00 format. ';
+                hasErrors = true;
+            }
+
+            // Validate Device IP
+            const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+            if (!ipRegex.test(deviceIp)) {
+                errorMessage.textContent += 'Invalid Device IP format. Use XXX.XXX.XXX.XXX format. ';
+                hasErrors = true;
+            } else {
+                // Further IP validation (check for valid numbers)
+                const ipParts = deviceIp.split('.').map(Number);
+                for (const part of ipParts) {
+                    if (part < 0 || part > 255) {
+                        errorMessage.textContent += 'Invalid Device IP value. Each part must be between 0 and 255. ';
+                        hasErrors = true;
+                        break;
+                    }
+                }
+            }
+
+            // Validate Device Name
+            if (!deviceName) {
+                errorMessage.textContent += 'Please enter a Device Name. ';
+                hasErrors = true;
+            }  else if (existingDeviceNames.includes(deviceName)) {
+                errorMessage.textContent += 'Device Name must be unique. ';
+                hasErrors = true;
+            }
+
+             // Validate Model
+            if (!model) {
+                errorMessage.textContent += 'Please enter a Model. ';
+                hasErrors = true;
+            }
+
+            if (hasErrors) {
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // If all validations pass, you can proceed
+            console.log('Form is valid. Acronym:', acronym, 'Device IP:', deviceIp, 'Device Name:', deviceName, 'Model', model);
+            alert('Device added successfully! Check console for device details.');
+            // In a real application, you would send this data to your server
+            // using fetch or XMLHttpRequest.  You would also update the
+            // existingDeviceNames array with the new device name.
+
+            // Example of using fetch:
+            /*
+            fetch('/api/devices', { // Replace with your server endpoint
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ acronym, deviceIp, deviceName, model }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Device added successfully on server!');
+                    existingDeviceNames.push(deviceName); // Update the local array
+                    // Clear the form
+                    document.getElementById('acronym').value = '';
+                    document.getElementById('device-ip').value = '';
+                    document.getElementById('device-name').value = '';
+                     document.getElementById('model').value = '';
+                } else {
+                    alert('Failed to add device on server.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while communicating with the server.');
+            });
+            */
+        });
+    </script>
+</body>
+</html>
