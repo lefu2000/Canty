@@ -17,7 +17,6 @@ from datetime import date
 import seccrt
 import Connect_Session
 
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def main():
     #Return the Tab or Session window from which the script was started
@@ -116,11 +115,11 @@ def main():
 
         ##### Start  - Connect to the Router  #######
         if user_credentials != 1:
-            result = Connect_Session.connect_network_device(ip, user_credentials, crt)
+            result = Connect_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
             if result["status"] == 1 and local_user_credentials != 1:
-                result = Connect_Session.connect_network_device(ip, user_credentials, crt)
+                result = Connect_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
         elif local_user_credentials != 1:
-            result = Connect_Session.connect_network_device(ip, user_credentials, crt)
+            result = Connect_Session.connect_network_device(ip, user_credentials, SCRIPT_TAB)
         ##### End  - Connect to the Router  #######
 
         ##### Start  - Connection Established with router, now SHOW  #######
