@@ -1,0 +1,14 @@
+{% extends './layout_device.html' %}
+
+{% block titble %} 
+
+
+{% %}{% endblock %}
+
+
+{% block script %}
+{% endblock %}
+
+
+{}
+{}

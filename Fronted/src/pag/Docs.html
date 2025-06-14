@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/Fronted/src/styles/styles.css">
+    <style>
+      .documentation-container {
+        padding: 40px;
+        background-color: #1B263B;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        max-width: 800px;
+        width: 90%;
+        margin: 20px auto;
+        color: #E0E1DD;
+      }
+
+      .documentation-container h1 {
+        color: #778DA9;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5rem;
+      }
+
+      .documentation-container p {
+        line-height: 1.7;
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+      }
+
+      .documentation-container h2 {
+        color: #415A77;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+      }
+
+      .documentation-container ul {
+        list-style: disc;
+        padding-left: 20px;
+        margin-bottom: 20px;
+      }
+
+      .documentation-container li{
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+
+      .back-button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 6px;
+        background-color: #778DA9;
+        color: #E0E1DD;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+        display: inline-block;
+      }
+
+      .back-button:hover {
+        background-color: #415A77;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 7px rgba(0, 0, 0, 0.2);
+      }
+
+      .back-button:active {
+        background-color: #1B263B;
+        transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      @media (max-width: 768px) {
+        .documentation-container {
+          padding: 30px;
+          width: 95%;
+        }
+        .documentation-container h1{
+            font-size: 2rem;
+        }
+        .documentation-container h2{
+            font-size: 1.5rem;
+        }
+        .documentation-container p{
+            font-size: 1rem;
+        }
+        .documentation-container li{
+             font-size: 1rem;
+        }
+      }
+    </style>
+</head>
+<body>
+    <div class="documentation-container">
+        <button class="back-button" id="back-button">Go Back to Dashboard</button>
+        <h1>Documentation</h1>
+        <p>
+            This is a placeholder page for the application's documentation.  The actual documentation would be placed here.
+            It is designed to be a comprehensive guide for users.
+        </p>
+
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#getting-started">Getting Started</a></li>
+            <li><a href="#core-features">Core Features</a></li>
+            <li><a href="#usage">Usage</a></li>
+            <li><a href="#api-reference">API Reference</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+            <li><a href="#faq">FAQ</a></li>
+        </ul>
+
+        <h2 id="introduction">Introduction</h2>
+        <p>
+            Provide a general overview of the application, its purpose, and its key features.  Explain what the application does
+            and who the target audience is.
+        </p>
+
+        <h2 id="getting-started">Getting Started</h2>
+        <p>
+            Explain how to install and set up the application.  Include any system requirements, installation instructions,
+            and initial configuration steps.
+        </p>
+
+        <h2 id="core-features">Core Features</h2>
+        <p>
+           Describe the main functionalities of the application
+        </p>
+         <ul>
+            <li>Feature 1</li>
+            <li>Feature 2</li>
+            <li>Feature 3</li>
+        </ul>
+
+        <h2 id="usage">Usage</h2>
+        <p>
+            Provide detailed instructions on how to use the application.  Include examples, screenshots, and step-by-step guides.
+            Cover all common use cases and workflows.
+        </p>
+
+        <h2 id="api-reference">API Reference</h2>
+        <p>
+            If the application has an API, provide a comprehensive reference with details on endpoints, parameters,
+            authentication, and response formats.
+        </p>
+
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <p>
+            List common problems and errors that users may encounter, along with solutions and workarounds.  Include tips on
+            how to diagnose and resolve issues.
+        </p>
+
+        <h2 id="faq">Frequently Asked Questions</h2>
+        <p>
+            Provide answers to common questions about the application.
+        </p>
+    </div>
+    <script>
+        document.getElementById('back-button').addEventListener('click', () => {
+            window.location.href = 'dashboard.html';
+        });
+    </script>
+</body>
+</html>

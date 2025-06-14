@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación: Diagrama de Proceso de Enrutadores</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* bg-gray-100 */
+            color: #374151; /* text-gray-700 */
+        }
+        .phase-card {
+            background-color: #ffffff; /* bg-white */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
+            padding: 1.5rem; /* p-6 */
+            margin-bottom: 2rem; /* mb-8 */
+        }
+        .step-card {
+            background-color: #ffffff;
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* shadow-md */
+            padding: 1rem; /* p-4 */
+            margin-bottom: 1rem; /* mb-4 */
+            display: flex;
+            align-items: center;
+        }
+        .step-number {
+            font-weight: 700; /* font-bold */
+            font-size: 1.25rem; /* text-xl */
+            color: #073B4C; /* darkBlue */
+            margin-right: 1rem; /* mr-4 */
+            min-width: 2rem;
+            text-align: center;
+        }
+        .arrow-down {
+            font-size: 2.5rem; /* text-4xl */
+            color: #6b7280; /* text-gray-500 */
+            text-align: center;
+            line-height: 1;
+            margin: 0.5rem auto; /* my-2 mx-auto */
+            display: block;
+        }
+        .decision-box {
+            background-color: #fef08a; /* bg-yellow-200 */
+            border: 2px solid #facc15; /* border-yellow-400 */
+            border-radius: 0.5rem;
+            padding: 0.75rem; /* p-3 */
+            text-align: center;
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 1rem;
+            color: #a16207; /* text-yellow-800 */
+        }
+        .decision-outcome {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 0.5rem;
+        }
+        .outcome-box {
+            background-color: #e2e8f0; /* bg-gray-200 */
+            border-radius: 0.25rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            color: #4b5563; /* text-gray-700 */
+            border: 1px solid #9ca3af; /* border-gray-400 */
+        }
+        .outcome-yes {
+            background-color: #d1fae5; /* bg-emerald-100 */
+            border-color: #34d399; /* border-emerald-400 */
+            color: #065f46; /* text-emerald-800 */
+        }
+        .outcome-no {
+            background-color: #fee2e2; /* bg-red-100 */
+            border-color: #ef4444; /* border-red-400 */
+            color: #b91c1c; /* text-red-800 */
+        }
+    </style>
+</head>
+<body class="font-inter antialiased">
+    <header class="bg-[#073B4C] text-white p-6 shadow-lg">
+        <div class="container mx-auto text-center">
+            <h1 class="text-3xl md:text-5xl font-black">Diagrama de Proceso: Gestión de Configuraciones de Enrutadores</h1>
+            <p class="text-lg mt-2 text-gray-300">Un enfoque visual de la recolección, almacenamiento y extracción de datos</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="introduction" class="text-center mb-12 max-w-4xl mx-auto">
+            <p class="text-lg text-gray-700 leading-relaxed">
+                Este diagrama ilustra las actividades clave y la secuencia lógica en la gestión de configuraciones de enrutadores. Se divide en tres fases principales que cubren desde la obtención de la información hasta su presentación al usuario, asegurando un flujo de trabajo eficiente y controlado.
+            </p>
+        </section>
+
+        <section id="phase-1-recoleccion" class="phase-card border-l-8 border-[#118AB2]">
+            <h2 class="text-2xl md:text-3xl font-bold text-[#118AB2] mb-6">1. Recolección de Datos</h2>
+            <p class="text-gray-600 mb-6">Esta fase se centra en la obtención segura de la información de configuración directamente desde los enrutadores.</p>
+
+            <div class="space-y-4">
+                <div class="step-card border-l-4 border-[#118AB2]">
+                    <div class="step-number">1.1</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Inicio del Proceso de Recolección</h3>
+                        <p class="text-gray-600 text-sm">El sistema inicia la tarea de recolectar configuraciones, ya sea de forma programada o manual.</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="step-card border-l-4 border-[#118AB2]">
+                    <div class="step-number">1.2</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Conexión con Enrutador</h3>
+                        <p class="text-gray-600 text-sm">El sistema establece una conexión segura con cada enrutador objetivo (ej., vía SSH, Telnet, SNMP).</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="step-card border-l-4 border-[#118AB2]">
+                    <div class="step-number">1.3</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Autenticación</h3>
+                        <p class="text-gray-600 text-sm">El sistema se autentica en el enrutador utilizando credenciales predefinidas.</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="step-card border-l-4 border-[#118AB2]">
+                    <div class="step-number">1.4</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Extracción de Configuración</h3>
+                        <p class="text-gray-600 text-sm">Se ejecutan comandos específicos en el enrutador para extraer su configuración actual.</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="step-card border-l-4 border-[#118AB2]">
+                    <div class="step-number">1.5</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Verificación de Datos Recolectados</h3>
+                        <p class="text-gray-600 text-sm">Se realiza una validación básica para asegurar que los datos son completos y válidos.</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="decision-box">
+                    ¿Datos válidos?
+                    <div class="decision-outcome">
+                        <span class="outcome-box outcome-yes">Sí →</span>
+                        <span class="outcome-box outcome-no">No →</span>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <p class="text-center text-sm text-gray-500">Si 'No', se registra un error y notifica la falla.</p>
+            </div>
+        </section>
+
+        <section id="phase-2-almacenamiento" class="phase-card border-l-8 border-[#06D6A0]">
+            <h2 class="text-2xl md:text-3xl font-bold text-[#06D6A0] mb-6">2. Almacenamiento de Datos</h2>
+            <p class="text-gray-600 mb-6">Una vez recolectados y validados, los datos de configuración se almacenan de forma segura y accesible.</p>
+
+            <div class="space-y-4">
+                <div class="step-card border-l-4 border-[#06D6A0]">
+                    <div class="step-number">2.1</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Formateo y Normalización de Datos</h3>
+                        <p class="text-gray-600 text-sm">La configuración extraída se procesa y se formatea en un esquema estandarizado.</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="step-card border-l-4 border-[#06D6A0]">
+                    <div class="step-number">2.2</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Generación de Metadatos</h3>
+                        <p class="text-gray-600 text-sm">Se adjuntan metadatos relevantes (fecha, ID del enrutador, versión de firmware) a la configuración.</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="step-card border-l-4 border-[#06D6A0]">
+                    <div class="step-number">2.3</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Almacenamiento en Base de Datos</h3>
+                        <p class="text-gray-600 text-sm">Los datos formateados y los metadatos se guardan en la base de datos central.</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="decision-box">
+                    ¿Almacenamiento exitoso?
+                    <div class="decision-outcome">
+                        <span class="outcome-box outcome-yes">Sí →</span>
+                        <span class="outcome-box outcome-no">No →</span>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <p class="text-center text-sm text-gray-500">Si 'No', se registra un error de almacenamiento y notifica.</p>
+                <div class="arrow-down">↓</div>
+                <div class="step-card border-l-4 border-[#06D6A0]">
+                    <div class="step-number">2.4</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Indexación (Opcional)</h3>
+                        <p class="text-gray-600 text-sm">Los datos pueden ser indexados para optimizar futuras búsquedas y extracciones.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="phase-3-ui" class="phase-card border-l-8 border-[#FFD166]">
+            <h2 class="text-2xl md:text-3xl font-bold text-[#FFD166] mb-6">3. Interfaz de Usuario para Extracción de Configuraciones</h2>
+            <p class="text-gray-600 mb-6">Esta fase describe cómo un usuario interactúa con el sistema para acceder a las configuraciones almacenadas.</p>
+
+            <div class="space-y-4">
+                <div class="step-card border-l-4 border-[#FFD166]">
+                    <div class="step-number">3.1</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Acceso a la Interfaz de Usuario</h3>
+                        <p class="text-gray-600 text-sm">El usuario inicia sesión o accede a la aplicación web/cliente.</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="step-card border-l-4 border-[#FFD166]">
+                    <div class="step-number">3.2</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Selección de Criterios de Búsqueda</h3>
+                        <p class="text-gray-600 text-sm">El usuario especifica los parámetros para buscar configuraciones (ej., nombre del enrutador, rango de fechas, palabras clave).</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="step-card border-l-4 border-[#FFD166]">
+                    <div class="step-number">3.3</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Envío de Solicitud de Extracción</h3>
+                        <p class="text-gray-600 text-sm">La interfaz de usuario envía la solicitud de búsqueda a la capa de lógica de negocio/API.</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="step-card border-l-4 border-[#FFD166]">
+                    <div class="step-number">3.4</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Consulta a la Base de Datos</h3>
+                        <p class="text-gray-600 text-sm">El sistema consulta la base de datos utilizando los criterios proporcionados por el usuario.</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="step-card border-l-4 border-[#FFD166]">
+                    <div class="step-number">3.5</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Presentación de Resultados</h3>
+                        <p class="text-gray-600 text-sm">Las configuraciones coincidentes se recuperan y se presentan al usuario.</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="decision-box">
+                    ¿Configuraciones encontradas?
+                    <div class="decision-outcome">
+                        <span class="outcome-box outcome-yes">Sí →</span>
+                        <span class="outcome-box outcome-no">No →</span>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <p class="text-center text-sm text-gray-500">Si 'No', se muestra un mensaje de "no encontrados".</p>
+                <div class="arrow-down">↓</div>
+                <div class="step-card border-l-4 border-[#FFD166]">
+                    <div class="step-number">3.6</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Opción de Exportación/Descarga</h3>
+                        <p class="text-gray-600 text-sm">El usuario puede exportar o descargar las configuraciones en varios formatos.</p>
+                    </div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <div class="step-card border-l-4 border-[#FFD166]">
+                    <div class="step-number">3.7</div>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">Fin de la Interacción del Usuario</h3>
+                        <p class="text-gray-600 text-sm">El usuario cierra la sesión o finaliza la tarea de extracción.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center mt-12 pt-8 border-t border-gray-300">
+        <p class="text-gray-600">Presentación de Diagrama de Proceso de Gestión de Configuraciones de Enrutadores.</p>
+        <p class="text-sm text-gray-500 mt-2">Documento generado para fines ilustrativos.</p>
+    </footer>
+
+</body>
+</html>

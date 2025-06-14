@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Interactivo: Desarrollo del Sistema SACE para CANTV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals & Calm Blue -->
+    <!-- Application Structure Plan: Se ha diseñado una aplicación de una sola página con un flujo narrativo temático. La estructura guía al usuario desde la comprensión del problema crítico en CANTV, pasando por un diagnóstico interactivo basado en los datos de la encuesta, hasta la presentación de la solución (SACE), su factibilidad y las conclusiones. Se eligió esta estructura de "scrolling" guiado en lugar de un dashboard para contar una historia coherente y hacer que la investigación sea accesible y digerible, facilitando la comprensión del proyecto en su totalidad, desde el porqué hasta el cómo y el cuánto. La navegación fija permite el acceso directo a las secciones clave, mejorando la usabilidad. -->
+    <!-- Visualization & Content Choices: 
+        - Problema: (Informar) Texto conciso y destacado para captar la atención sobre la criticidad.
+        - Diagnóstico: (Comparar/Explorar) Un gráfico de barras de Chart.js (Canvas) que se actualiza dinámicamente mediante botones. El usuario puede seleccionar qué resultado de la encuesta ver, enfocando su atención y evitando la sobrecarga de información. Cada vista del gráfico se acompaña de su análisis textual correspondiente. Esto transforma datos estáticos en una herramienta de exploración.
+        - Solución SACE: (Organizar) Tarjetas con iconos (HTML/CSS) para presentar las características clave del sistema de forma clara y visual.
+        - Factibilidad: (Informar/Impactar) Contadores numéricos animados para los costos y una línea de tiempo visual (HTML/CSS) para el plan operativo. Esto hace que los datos financieros y la planificación sean más atractivos y memorables.
+        - Conclusiones: (Organizar) Un componente de acordeón interactivo (HTML/JS) para presentar las conclusiones y recomendaciones de forma compacta, permitiendo al usuario profundizar a demanda.
+        - Justificación General: Las elecciones priorizan la interactividad y la claridad visual para traducir un informe académico denso en una experiencia web atractiva y fácil de entender, confirmando el uso exclusivo de Canvas para gráficos y HTML/CSS para otros elementos visuales. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #333;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #3B82F6;
+            border-bottom-color: #3B82F6;
+        }
+        .stat-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .feature-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E5E7EB;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-800">SACE CANTV</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#problema" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">El Problema</a>
+                <a href="#diagnostico" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">Diagnóstico</a>
+                <a href="#solucion" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">La Solución</a>
+                <a href="#factibilidad" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">Factibilidad</a>
+                <a href="#conclusiones" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">Conclusiones</a>
+            </div>
+             <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden bg-white px-6 pb-4">
+             <a href="#problema" class="block py-2 nav-link text-gray-600">El Problema</a>
+             <a href="#diagnostico" class="block py-2 nav-link text-gray-600">Diagnóstico</a>
+             <a href="#solucion" class="block py-2 nav-link text-gray-600">La Solución</a>
+             <a href="#factibilidad" class="block py-2 nav-link text-gray-600">Factibilidad</a>
+             <a href="#conclusiones" class="block py-2 nav-link text-gray-600">Conclusiones</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight">Desarrollo y Factibilidad de un Sistema de Almacenamiento de Configuraciones</h2>
+                <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Un caso de estudio para optimizar la gestión de enrutadores en la capa Metro Ethernet de CANTV y asegurar la continuidad del servicio de telecomunicaciones en Venezuela.</p>
+                <p class="mt-2 text-sm text-gray-500">Autor: Luis Fernando Rivera Reina</p>
+            </div>
+        </section>
+
+        <section id="problema" class="py-16 lg:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                     <span class="text-blue-600 font-semibold">El Contexto</span>
+                    <h3 class="text-3xl lg:text-4xl font-bold text-gray-800 mt-2">Una Vulnerabilidad Crítica en la Red Nacional</h3>
+                </div>
+                <div class="max-w-4xl mx-auto text-lg text-gray-700 leading-relaxed space-y-6 text-justify">
+                    <p>La Compañía Anónima de Telecomunicaciones de Venezuela (CANTV) es el pilar de las comunicaciones del país. Su compleja red Metro Ethernet, con equipos de múltiples proveedores como Alcatel, ZTE, Cisco y Huawei, opera 24/7 para dar servicio a innumerables clientes. Sin embargo, esta infraestructura vital enfrenta un riesgo significativo: la <strong>pérdida de configuraciones de los enrutadores</strong>. </p>
+                    <p>Estos incidentes, causados por fallas de energía, vandalismo o averías de software, pueden llevar a la pérdida total de la configuración de un cliente. La restauración es un proceso manual, lento y dependiente del personal físico, lo que genera una brecha operativa que amenaza directamente la <strong>calidad y continuidad del servicio</strong> a nivel nacional. La ausencia de un sistema automatizado y centralizado de respaldo de configuraciones no es solo una ineficiencia, sino una vulnerabilidad estratégica para la infraestructura de telecomunicaciones de Venezuela.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="diagnostico" class="py-16 lg:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <span class="text-blue-600 font-semibold">El Diagnóstico</span>
+                    <h3 class="text-3xl lg:text-4xl font-bold text-gray-800 mt-2">Perspectivas desde el Corazón de la Red</h3>
+                     <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">Para entender a fondo la situación, se realizó una encuesta a 19 trabajadores clave de la Gerencia de Operaciones. Sus respuestas revelan una realidad compleja, con contradicciones y claras oportunidades de mejora. Explore los resultados interactivos para descubrir los hallazgos clave.</p>
+                </div>
+                <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+                    <div class="w-full lg:w-1/2">
+                        <h4 id="chart-title" class="text-xl font-semibold text-center mb-4 text-gray-800">Proceso de Recolección de Datos</h4>
+                        <div class="chart-container">
+                            <canvas id="surveyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="w-full lg:w-1/2">
+                        <div id="chart-analysis" class="bg-gray-50 p-6 rounded-lg text-gray-700">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 flex flex-wrap justify-center gap-2 md:gap-3">
+                    <button data-item="item1" class="chart-btn bg-blue-500 text-white py-2 px-4 rounded-full text-sm">Proceso</button>
+                    <button data-item="item2" class="chart-btn bg-gray-200 text-gray-700 py-2 px-4 rounded-full text-sm">Eficiencia</button>
+                    <button data-item="item3" class="chart-btn bg-gray-200 text-gray-700 py-2 px-4 rounded-full text-sm">Uso de CLI</button>
+                    <button data-item="item4" class="chart-btn bg-gray-200 text-gray-700 py-2 px-4 rounded-full text-sm">Uso de Configs</button>
+                    <button data-item="item5" class="chart-btn bg-gray-200 text-gray-700 py-2 px-4 rounded-full text-sm">Seguridad</button>
+                    <button data-item="item6" class="chart-btn bg-gray-200 text-gray-700 py-2 px-4 rounded-full text-sm">Almacenamiento</button>
+                    <button data-item="item7" class="chart-btn bg-gray-200 text-gray-700 py-2 px-4 rounded-full text-sm">Interoperabilidad</button>
+                    <button data-item="item8" class="chart-btn bg-gray-200 text-gray-700 py-2 px-4 rounded-full text-sm">Satisfacción</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="solucion" class="py-16 lg:py-24">
+            <div class="container mx-auto px-6">
+                 <div class="text-center mb-12">
+                    <span class="text-blue-600 font-semibold">La Solución Propuesta</span>
+                    <h3 class="text-3xl lg:text-4xl font-bold text-gray-800 mt-2">SACE: Sistema de Almacenamiento de Configuraciones</h3>
+                     <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">En respuesta a los desafíos identificados, se propone el Sistema de Almacenamiento de Configuraciones de Enrutadores (SACE). SACE está diseñado para ser una solución integral que automatiza, centraliza y asegura la gestión de las configuraciones críticas de la red de CANTV.</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <div class="feature-card p-6 rounded-lg text-center">
+                        <div class="text-blue-600 text-4xl mb-4">⚙️</div>
+                        <h4 class="font-semibold text-lg mb-2">Automatización de Respaldos</h4>
+                        <p class="text-gray-600 text-sm">Conexión remota a enrutadores (SSH/Telnet) para realizar respaldos automáticos, eliminando el error humano y la dependencia de procesos manuales.</p>
+                    </div>
+                    <div class="feature-card p-6 rounded-lg text-center">
+                        <div class="text-blue-600 text-4xl mb-4">🗄️</div>
+                        <h4 class="font-semibold text-lg mb-2">Base de Datos Centralizada</h4>
+                        <p class="text-gray-600 text-sm">Almacenamiento de todas las configuraciones en una base de datos relacional robusta, permitiendo búsquedas estructuradas y acceso rápido.</p>
+                    </div>
+                    <div class="feature-card p-6 rounded-lg text-center">
+                        <div class="text-blue-600 text-4xl mb-4">🔄</div>
+                        <h4 class="font-semibold text-lg mb-2">Control de Versiones</h4>
+                        <p class="text-gray-600 text-sm">Mantiene un historial de cada guardado, permitiendo la trazabilidad de cambios y la restauración a versiones anteriores en caso de fallas.</p>
+                    </div>
+                    <div class="feature-card p-6 rounded-lg text-center">
+                        <div class="text-blue-600 text-4xl mb-4">🛡️</div>
+                        <h4 class="font-semibold text-lg mb-2">Seguridad y Acceso por Roles</h4>
+                        <p class="text-gray-600 text-sm">Implementa roles de usuario (Administrador y Trabajador) para garantizar que solo el personal autorizado pueda acceder y modificar la información sensible.</p>
+                    </div>
+                    <div class="feature-card p-6 rounded-lg text-center">
+                        <div class="text-blue-600 text-4xl mb-4">🖥️</div>
+                        <h4 class="font-semibold text-lg mb-2">Interfaz Web Intuitiva</h4>
+                        <p class="text-gray-600 text-sm">Una interfaz de usuario visual y accesible desde la red local para buscar, observar y descargar configuraciones de manera sencilla.</p>
+                    </div>
+                    <div class="feature-card p-6 rounded-lg text-center">
+                        <div class="text-blue-600 text-4xl mb-4">🤝</div>
+                        <h4 class="font-semibold text-lg mb-2">Soporte Multi-Proveedor</h4>
+                        <p class="text-gray-600 text-sm">Diseñado para ser compatible con la diversa gama de equipos de la red de CANTV, incluyendo Alcatel, ZTE, Cisco y Huawei.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="factibilidad" class="py-16 lg:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                     <span class="text-blue-600 font-semibold">Análisis de Viabilidad</span>
+                    <h3 class="text-3xl lg:text-4xl font-bold text-gray-800 mt-2">¿Es Viable el Proyecto SACE?</h3>
+                     <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">Un análisis exhaustivo demostró que el proyecto SACE no solo es necesario, sino también técnica, operativa y económicamente factible. La inversión principal se centra en el talento humano, no en costosas licencias de software.</p>
+                </div>
+                <div class="mb-16">
+                    <h4 class="text-2xl font-bold text-center mb-8 text-gray-800">Inversión Inicial Estimada</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+                        <div class="stat-card text-center">
+                            <p class="text-gray-500 text-sm">Recursos Humanos</p>
+                            <p class="text-4xl font-bold text-gray-900" data-count="8624">$0</p>
+                        </div>
+                        <div class="stat-card text-center">
+                            <p class="text-gray-500 text-sm">Hardware</p>
+                            <p class="text-4xl font-bold text-gray-900" data-count="705">$0</p>
+                        </div>
+                        <div class="stat-card text-center">
+                            <p class="text-gray-500 text-sm">Software</p>
+                            <p class="text-4xl font-bold text-gray-900" data-count="195">$0</p>
+                        </div>
+                        <div class="stat-card text-center bg-blue-500 text-white">
+                            <p class="text-blue-100 text-sm">Inversión Total</p>
+                            <p class="text-4xl font-bold" data-count="9029">$0</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                     <h4 class="text-2xl font-bold text-center mb-8 text-gray-800">Cronograma del Proyecto</h4>
+                     <div class="max-w-6xl mx-auto space-y-4">
+                        <div class="grid grid-cols-12 gap-x-2 text-xs font-bold text-center text-gray-500 mb-2">
+                            <div class="col-span-3">2024</div>
+                            <div class="col-span-9">2025</div>
+                            <div class="">Oct</div><div class="">Nov</div><div class="">Dic</div>
+                            <div class="">Ene</div><div class="">Feb</div><div class="">Mar</div><div class="">Abr</div><div class="">May</div><div class="">Jun</div><div class="">Jul</div>
+                        </div>
+                         <div class="relative timeline-item bg-gray-100 p-3 rounded-lg">
+                            <p class="font-semibold text-sm text-gray-800">Diseño y Elaboración de la Aplicación</p>
+                            <div class="absolute top-1/2 -translate-y-1/2 h-3 bg-blue-400 rounded-full" style="left: calc(1/12 * 100%); width: calc(4/12 * 100%);"></div>
+                        </div>
+                         <div class="relative timeline-item bg-gray-100 p-3 rounded-lg">
+                            <p class="font-semibold text-sm text-gray-800">Desarrollo de Procesos (Recolección, Almacenamiento, UI)</p>
+                            <div class="absolute top-1/2 -translate-y-1/2 h-3 bg-green-400 rounded-full" style="left: calc(6/12 * 100%); width: calc(3/12 * 100%);"></div>
+                        </div>
+                        <div class="relative timeline-item bg-gray-100 p-3 rounded-lg">
+                            <p class="font-semibold text-sm text-gray-800">Revisión, Ajustes e Implementación</p>
+                            <div class="absolute top-1/2 -translate-y-1/2 h-3 bg-yellow-400 rounded-full" style="left: calc(9/12 * 100%); width: calc(1/12 * 100%);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="conclusiones" class="py-16 lg:py-24">
+            <div class="container mx-auto px-6 max-w-4xl">
+                 <div class="text-center mb-12">
+                    <span class="text-blue-600 font-semibold">Cierre del Proyecto</span>
+                    <h3 class="text-3xl lg:text-4xl font-bold text-gray-800 mt-2">Conclusiones y Pasos a Seguir</h3>
+                     <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">La investigación valida la necesidad de un sistema como SACE y proporciona una hoja de ruta clara para su implementación exitosa.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="accordion-item bg-white rounded-lg shadow-sm">
+                        <button class="accordion-header w-full flex justify-between items-center p-5 text-left font-semibold text-gray-800">
+                            Conclusiones Principales
+                            <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content hidden p-5 pt-0 text-gray-600">
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>Existe un conocimiento desigual y una baja satisfacción con el sistema actual de gestión de configuraciones.</li>
+                                <li>La CLI es la herramienta dominante, pero se necesita un sistema que facilite un uso más activo y no solo de visualización.</li>
+                                <li>Una base de datos relacional es la opción óptima para estructurar y buscar la información de los equipos.</li>
+                                <li>La seguridad (control de acceso) y la interoperabilidad son requisitos no negociables exigidos por el propio personal.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-white rounded-lg shadow-sm">
+                        <button class="accordion-header w-full flex justify-between items-center p-5 text-left font-semibold text-gray-800">
+                            Recomendaciones Clave
+                            <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content hidden p-5 pt-0 text-gray-600">
+                             <ul class="list-disc list-inside space-y-2">
+                                <li>Mantener un inventario detallado y actualizado de todos los equipos enrutadores.</li>
+                                <li>Implementar un registro formal del uso y modificación de las configuraciones para auditoría.</li>
+                                <li>Elaborar un manual de usuario y documentación técnica exhaustiva para el sistema SACE.</li>
+                                <li>Capacitar de forma continua al personal para asegurar la correcta utilización y adaptación al nuevo sistema.</li>
+                                 <li>Garantizar que SACE sea compatible con múltiples proveedores para asegurar su escalabilidad y relevancia a largo plazo.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>&copy; 2025 - Informe Interactivo basado en el Trabajo Especial de Grado de Luis Fernando Rivera Reina.</p>
+            <p class="text-sm text-gray-400 mt-2">Aplicación desarrollada para facilitar la visualización y comprensión de la investigación.</p>
+        </div>
+    </footer>
+
+    <script>
+        const surveyData = {
+            item1: {
+                title: 'Conocimiento sobre el Proceso de Recolección de Datos',
+                labels: ['Mucho', 'Algo', 'Regular', 'Poco', 'Nada'],
+                values: [10.53, 36.84, 15.79, 21.05, 15.79],
+                analysis: `<strong>Análisis:</strong> Existe una comprensión fragmentada del proceso actual. Aunque un 36.8% declara saber "Algo", solo un 10.5% afirma conocerlo "Mucho". Esto sugiere una falta de estandarización y una oportunidad clara para unificar el conocimiento a través de un nuevo sistema.`
+            },
+            item2: {
+                title: 'Percepción sobre la Eficiencia del Proceso Actual',
+                labels: ['Totalmente de acuerdo', 'De acuerdo', 'Indiferente', 'En desacuerdo', 'Totalmente en desacuerdo'],
+                values: [31.58, 31.58, 15.79, 10.53, 10.53],
+                analysis: `<strong>Análisis:</strong> Sorprendentemente, un 63.2% percibe el manejo actual como eficiente. Esto contrasta con la baja satisfacción general y el conocimiento fragmentado, lo que indica que el personal puede estar acostumbrado a la ineficiencia o no conoce alternativas mejores.`
+            },
+            item3: {
+                title: 'Frecuencia de Uso de la Interfaz de Línea de Comandos (CLI)',
+                labels: ['Muy Frecuentemente', 'Frecuentemente', 'A veces', 'Rara vez', 'Nunca'],
+                values: [68.42, 10.53, 5.26, 5.26, 10.53],
+                analysis: `<strong>Análisis:</strong> La CLI es la herramienta predominante. Un 78.9% la usa de forma frecuente o muy frecuente para visualizar configuraciones. Cualquier sistema nuevo debe poder integrarse o complementar este flujo de trabajo arraigado, ofreciendo ventajas claras sobre la CLI.`
+            },
+            item4: {
+                title: 'Frecuencia de Uso Activo de las Configuraciones',
+                labels: ['Muy Frecuentemente', 'Frecuentemente', 'A veces', 'Rara vez', 'Nunca'],
+                values: [26.32, 36.84, 5.26, 21.05, 10.53],
+                analysis: `<strong>Análisis:</strong> Hay una brecha entre "ver" y "usar". Mientras el 79% ve las configuraciones por CLI, solo el 63% las usa activamente. Esto puede indicar una división de roles (monitores vs. gestores) o cuellos de botella que un sistema como SACE podría resolver.`
+            },
+            item5: {
+                title: 'Preferencia por un Acceso Selectivo (Seguridad)',
+                labels: ['Totalmente de acuerdo', 'De acuerdo', 'Indiferente', 'En desacuerdo', 'Totalmente en desacuerdo'],
+                values: [52.63, 42.11, 0, 0, 5.26],
+                analysis: `<strong>Análisis:</strong> La demanda de seguridad es abrumadora. Un 94.7% está de acuerdo con un acceso selectivo. Esto, combinado con el marco legal, hace que la seguridad basada en roles sea un pilar fundamental e innegociable del sistema SACE.`
+            },
+            item6: {
+                title: 'Percepción sobre la Versatilidad del Almacenamiento Actual',
+                labels: ['Totalmente de acuerdo', 'De acuerdo', 'Indiferente', 'En desacuerdo', 'Totalmente en desacuerdo'],
+                values: [10.53, 26.32, 26.32, 31.58, 5.26],
+                analysis: `<strong>Análisis:</strong> Las opiniones están muy divididas, sin un consenso claro. La alta indiferencia (26.3%) y el desacuerdo (36.9%) indican que el sistema actual no es percibido como una solución de almacenamiento versátil o eficiente, validando la necesidad de una mejora.`
+            },
+            item7: {
+                title: 'Importancia de la Interoperabilidad de Sistemas',
+                labels: ['Extremadamente importante', 'Muy Importante', 'Medianamente', 'Poco', 'Nada'],
+                values: [42.11, 47.37, 5.26, 0, 5.26],
+                analysis: `<strong>Análisis:</strong> La interoperabilidad es crítica. Un 89.5% la considera muy o extremadamente importante. Una solución aislada tendría poco éxito. SACE debe diseñarse para integrarse fluidamente con el ecosistema de herramientas existente en CANTV.`
+            },
+            item8: {
+                title: 'Nivel de Satisfacción con la Eficiencia del Sistema Actual',
+                labels: ['Muy satisfecho', 'Satisfecho', 'Indiferente', 'Insatisfecho', 'Muy insatisfecho'],
+                values: [0, 42.11, 21.05, 26.32, 10.53],
+                analysis: `<strong>Análisis:</strong> La satisfacción es baja. Nadie está "Muy satisfecho" y un 36.8% está activamente insatisfecho. Esto es un fuerte indicador de que el sistema actual presenta deficiencias que impactan negativamente en el trabajo diario, reforzando la urgencia de una nueva solución.`
+            },
+        };
+
+        let myChart;
+        const ctx = document.getElementById('surveyChart').getContext('2d');
+        const chartTitleEl = document.getElementById('chart-title');
+        const chartAnalysisEl = document.getElementById('chart-analysis');
+        
+        function updateChart(itemKey) {
+            const data = surveyData[itemKey];
+            if (!data) return;
+
+            chartTitleEl.textContent = data.title;
+            chartAnalysisEl.innerHTML = data.analysis;
+
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels.map(label => label.length > 16 ? label.match(/.{1,16}/g) : label),
+                    datasets: [{
+                        label: '% de Respuestas',
+                        data: data.values,
+                        backgroundColor: '#3B82F6',
+                        borderColor: '#2563EB',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%'
+                                }
+                            }
+                        },
+                        y: {
+                           ticks: {
+                             autoSkip: false
+                           }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: ${context.raw.toFixed(2)}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        const chartButtons = document.querySelectorAll('.chart-btn');
+        chartButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                chartButtons.forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                });
+                button.classList.add('bg-blue-500', 'text-white');
+                button.classList.remove('bg-gray-200', 'text-gray-700');
+                updateChart(button.dataset.item);
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateChart('item1');
+            
+            const counters = document.querySelectorAll('[data-count]');
+            const speed = 200;
+
+            const animateCount = (counter) => {
+                const updateCount = () => {
+                    const target = +counter.getAttribute('data-count');
+                    const count = +counter.innerText.replace('$', '').replace(',', '');
+                    const inc = target / speed;
+                    if (count < target) {
+                        counter.innerText = '$' + Math.ceil(count + inc).toLocaleString('en-US');
+                        setTimeout(updateCount, 10);
+                    } else {
+                        counter.innerText = '$' + target.toLocaleString('en-US');
+                    }
+                };
+                updateCount();
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCount(entry.target);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+            
+            counters.forEach(counter => {
+                observer.observe(counter);
+            });
+
+            const accordions = document.querySelectorAll('.accordion-item');
+            accordions.forEach(item => {
+                const header = item.querySelector('.accordion-header');
+                const content = item.querySelector('.accordion-content');
+                const icon = header.querySelector('svg');
+                header.addEventListener('click', () => {
+                    content.classList.toggle('hidden');
+                    icon.classList.toggle('rotate-180');
+                });
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if(!mobileMenu.classList.contains('hidden')) {
+                         mobileMenu.classList.add('hidden');
+                    }
+                })
+            })
+            
+            const sections = document.querySelectorAll('section');
+            const navLinkElements = document.querySelectorAll('.nav-link');
+            const onScroll = () => {
+                let currentSection = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 100) {
+                        currentSection = section.getAttribute('id');
+                    }
+                });
+
+                navLinkElements.forEach(link => {
+                    link.classList.remove('active');
+                    if(link.getAttribute('href').substring(1) === currentSection){
+                        link.classList.add('active');
+                    }
+                });
+            };
+            window.addEventListener('scroll', onScroll);
+
+        });
+    </script>
+</body>
+</html>
