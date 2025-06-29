@@ -1,25 +1,42 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
-import os
 from werkzeug.security import generate_password_hash, check_password_hash
+from contextlib import closing
+import logging
+import database
+import os
+
+# Configuración básica de logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.secret_key = 'lriver14'  # Change this to a random secret key!
+app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(24).hex()
+app.config.update(
+    DATABASE='network_configs.db',
+    TEMPLATES_AUTO_RELOAD=True
+)
 
-# Configuration
-DATABASE = 'network_configs.db'
-app.config['TEMPLATES_AUTO_RELOAD'] = True  # Auto-reload templates during development
+# Constantes para mensajes de error
+ERROR_MESSAGES = {
+    'credentials_required': "Username and password are required",
+    'invalid_credentials': "Invalid credentials",
+    'server_error': "Server error occurred",
+    'username_taken': "Username already taken",
+    'password_length': "Password must be at least 8 characters",
+    'registration_failed': "Registration failed",
+    'load_devices_failed': "Could not load devices"
+}
 
 def get_db():
-    """Create and return a database connection"""
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row  # Return rows as dictionaries
+    """Obtiene una conexión a la base de datos con manejo de contexto."""
+    conn = sqlite3.connect(app.config['DATABASE'])
+    conn.row_factory = sqlite3.Row
     return conn
 
-def init_db():
-    """Initialize the database with required tables"""
-    with app.app_context():
-        db = get_db()
+#def init_db():
+    """Inicializa la base de datos con las tablas necesarias."""
+    with app.app_context(), closing(get_db()) as db:
         db.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,110 +53,107 @@ def init_db():
             )
         ''')
         db.commit()
-        db.close()
+
+def validate_credentials(username, password):
+    """Valida que las credenciales no estén vacías."""
+    return username and password
+
+def is_authenticated():
+    """Verifica si el usuario está autenticado."""
+    return 'user_id' in session
 
 @app.route('/index', methods=['GET', 'POST'])
 def login():
+    """Maneja el inicio de sesión de usuarios."""
     if request.method == 'POST':
-        # 1. Obtención de datos del formulario
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
         
-        print(f"Login attempt - Username: {username}")  # Debug print
+        logger.info(f"Intento de login para usuario: {username}")
         
-        # 2. Validación básica
-        if not username or not password:
-            return render_template('index.html', error="Username and password are required")
+        if not validate_credentials(username, password):
+            return render_template('index.html', error=ERROR_MESSAGES['credentials_required'])
         
         try:
-            # 3. Conexión a la base de datos
-            conn = get_db()
-
-            # 4. Búsqueda del usuario
-            user = conn.execute(
-                'SELECT * FROM users WHERE username = ?', 
-                (username,)
-            ).fetchone()
-            conn.close()
-            
-            # 5. Verificación de credenciales
-            if user and check_password_hash(user['password'], password):
-                print("Login successful!")  # Debug print
-                 # 6. Creación de sesión
-                session['user_id'] = user['id']
-                session['username'] = user['username']
-                print(f"Session after login: {dict(session)}")  # Debug print
-                return redirect(url_for('dashboard'))
-            
-             # 7. Manejo de credenciales inválidas
-            print("Invalid credentials")  # Debug print
-            return render_template('index.html', error="Invalid credentials")
-        
+            with closing(get_db()) as conn:
+                user = conn.execute(
+                    'SELECT * FROM users WHERE username = ?', 
+                    (username,)
+                ).fetchone()
+                
+                if user and check_password_hash(user['password'], password):
+                    logger.info(f"Login exitoso para usuario: {username}")
+                    session.update({
+                        'user_id': user['id'],
+                        'username': user['username']
+                    })
+                    return redirect(url_for('dashboard'))
+                
+                return render_template('index.html', error=ERROR_MESSAGES['invalid_credentials'])
+                
         except Exception as e:
-            app.logger.error(f"Login error: {str(e)}")
-            return render_template('index.html', error="Server error occurred")
+            logger.error(f"Error en login: {str(e)}")
+            return render_template('index.html', error=ERROR_MESSAGES['server_error'])
 
     return render_template('index.html')
 
 @app.route('/dashboard')
 def dashboard():
-    """Display the dashboard"""
-    if 'user_id' not in session:
+    """Muestra el panel de control principal."""
+    if not is_authenticated():
         return redirect(url_for('login'))
     
     try:
-        conn = get_db()
-        devices = conn.execute('SELECT * FROM devices ORDER BY hostname').fetchall()
-        conn.close()
-        return render_template('dashboard.html', 
-                             devices=devices, 
-                             username=session['username'])
+        with closing(get_db()) as conn:
+            devices = conn.execute('SELECT * FROM devices ORDER BY hostname').fetchall()
+            return render_template('dashboard.html', 
+                                devices=devices, 
+                                username=session['username'])
     except Exception as e:
-        app.logger.error(f"Dashboard error: {str(e)}")
-        return render_template('index.html', error="Could not load devices")
+        logger.error(f"Error en dashboard: {str(e)}")
+        return render_template('index.html', error=ERROR_MESSAGES['load_devices_failed'])
 
 @app.route('/logout')
 def logout():
-    """Handle user logout"""
+    """Cierra la sesión del usuario."""
     session.clear()
     return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    """Handle new user registration"""
+    """Maneja el registro de nuevos usuarios."""
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
         
-        if not username or not password:
-            return render_template('register.html', error="Username and password are required")
+        if not validate_credentials(username, password):
+            return render_template('register.html', error=ERROR_MESSAGES['credentials_required'])
         
         if len(password) < 8:
-            return render_template('register.html', error="Password must be at least 8 characters")
+            return render_template('register.html', error=ERROR_MESSAGES['password_length'])
         
         try:
-            conn = get_db()
-            # Check if username already exists
-            if conn.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone():
-                return render_template('register.html', error="Username already taken")
+            with closing(get_db()) as conn:
+                if conn.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone():
+                    return render_template('register.html', error=ERROR_MESSAGES['username_taken'])
+                
+                conn.execute(
+                    'INSERT INTO users (username, password) VALUES (?, ?)',
+                    (username, generate_password_hash(password))
+                )
+                conn.commit()
+                return redirect(url_for('login'))
             
-            # Create new user with hashed password
-            conn.execute(
-                'INSERT INTO users (username, password) VALUES (?, ?)',
-                (username, generate_password_hash(password))
-            )
-            conn.commit()
-            conn.close()
-            
-            return redirect(url_for('login'))
-        
         except Exception as e:
-            conn.rollback()
-            app.logger.error(f"Registration error: {str(e)}")
-            return render_template('register.html', error="Registration failed")
+            logger.error(f"Error en registro: {str(e)}")
+            return render_template('register.html', error=ERROR_MESSAGES['registration_failed'])
     
     return render_template('register.html')
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 if __name__ == '__main__':
-    init_db()  # Initialize database tables
+    database.init_db
     app.run(debug=True, host='0.0.0.0', port=5000)
