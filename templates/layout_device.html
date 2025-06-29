@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title}{endpoint}</title>
+    <title>{% block title %}{% endpoint %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/Fronted/src/styles/styles.css">
     <style>
@@ -121,6 +121,22 @@
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .pagination a {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        .pagination a:hover {
+            background-color: #f5f5f5;
+        }
+
         @media (max-width: 768px) {
             .version-container {
                 padding: 30px;
@@ -199,6 +215,13 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for version in all_version %}
+                    <tr>
+                        <td>{{ version.fecha }}</td>
+                        <td>{{ version.version }}</td>
+                        <!-- otras columnas -->
+                    </tr>
+                    {% endfor %}
                     <tr>
                         <td data-column-name="Version">1.0</td>
                         <td data-column-name="Creation Date">2023-01-15</td>
@@ -236,6 +259,8 @@
                     </tr>
                 </tbody>
             </table>
+
+            
         </div>
     </div>
     <script>

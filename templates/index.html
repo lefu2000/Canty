@@ -67,74 +67,110 @@
             display: none;
         }
     </style>
-</head>
+</head> 
 <body>
     <div class="login-container">
-        <h1>Login</h1>
-        {% if error %}
-            <div id="error-message" class="error-message" style="display: block;">{{ error }}</div>
-        {% else %}
-            <div id="error-message" class="error-message" style="display: none;"></div>
-        {% endif %}
-        
+        <h1>Inicio de Sesión</h1>
         <form id="login-form" method="POST" action="{{ url_for('login') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> <!-- token CSRF que Flask-WTF requiere para protección contra ataques. --> 
+
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                <label for="usuario">Usuario</label>
+                <input type="text" id="usuario" name="usuario" placeholder="Ingrese su usuario" required>   
+                <span class="error-text"></span>        
             </div>
+
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <label for="contrasena">Contraseña</label>
+                <input type="password" id="contrasena" name="contrasena" placeholder="Ingrese su contraseña" required>
+                <span class="error-text"></span>
             </div>
-            <button type="submit">Login</button>
+                {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+            <button type="submit" class="login-button">Iniciar Sesión</button>
         </form>
     </div>
 
-    <script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('login-form');
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    form.insertBefore(errorElement, form.firstChild);
+    
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const csrfToken = document.querySelector('[name="csrf_token"]').value;
+    
+    // Envío del formulario con AJAX
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
         
-        // Client-side validation (optional)
+        // Limpiar mensajes de error previos
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';
         
-        /*
-        document.getElementById('login-form').addEventListener('submit', function(event) {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const errorElement = document.getElementById('error-message');
+        // Validación básica del lado del cliente
+        const usuario = document.getElementById('usuario').value.trim();
+        const contrasena = document.getElementById('contrasena').value.trim();
+        
+        if (!usuario || !contrasena) {
+            errorElement.textContent = 'Por favor ingrese usuario y contraseña';
+            errorElement.style.display = 'block';
+            return;
+        }
+        
+        // Mostrar estado de carga
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner">Autenticando...</span>';
+        
+        try {
+            const formData = new URLSearchParams();
+            formData.append('usuario', usuario);
+            formData.append('contrasena', contrasena);
+            formData.append('csrf_token', csrfToken);
             
-            if (!username || !password) {
-                event.preventDefault();
-                errorElement.textContent = 'Please enter both username and password.';
+            const response = await fetch("{{ url_for('login') }}", {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok && result.redirect) {
+                window.location.href = result.redirect; 
+            } else {
+                errorElement.textContent = result.error || 'Usuario o contraseña incorrectos';
                 errorElement.style.display = 'block';
             }
-        });
-*/
-        // If you want to add AJAX submission (optional)
-       
-        document.getElementById('login-form').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            
-            const formData = new FormData(this);
-            const errorElement = document.getElementById('error-message');
-            
-            try {
-                const response = await fetch("{{ url_for('login') }}", {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (response.redirected) {
-                    window.location.href = response.url;
-                } else {
-                    const data = await response.json();
-                    errorElement.textContent = data.error || 'Invalid credentials';
-                    errorElement.style.display = 'block';
-                }
-            } catch (error) {
-                errorElement.textContent = 'An error occurred. Please try again.';
-                errorElement.style.display = 'block';
-                console.error('Error:', error);
-            }
-        });
-        
-    </script>
+        } catch (error) {
+            errorElement.textContent = error.message || 'Error en el servidor';
+            errorElement.style.display = 'block';
+            logger.error('Error de login:', error); // Implementar logger en el frontend
+        } 
+    });
+});
+</script>
+
+<style>
+.spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.error-message {
+    color: #d32f2f;
+    background-color: #fde0e0;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    display: none;
+}
+</style>
 </body>
 </html>

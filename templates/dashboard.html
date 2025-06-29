@@ -43,23 +43,81 @@
     </div>
 
     <h2>Network Devices</h2>
-    <table>
+    <table class="data-sheet">
         <thead>
             <tr>
-                <th>Hostname</th>
-                <th>IP Address</th>
-                <th>Status</th>
+                <th>Acronimo</th>
+                <th>IP</th>
+                <th>Nombre</th>
+                <th>Modelo</th>
+                <th>Proveedor</th>
+                <th>Version</th>
+                <th>Localidad</th>
+                <th>Region</th>
+                <th>Estado</th>
             </tr>
         </thead>
         <tbody>
-            {% for device in devices %}
-            <tr>
-                <td>{{ device['hostname'] }}</td>
-                <td>{{ device['ip_address'] }}</td>
-                <td>{{ device['status'] }}</td>
-            </tr>
-            {% endfor %}
+            {% if equipos %}
+                {% for equipo in equipos %}
+                <tr>
+                    <td>{{ equipo['acronimo'] }}</td>
+                    <td>{{ equipo['ip'] }}</td>
+                    <td>{{ equipo['nombre_equipo'] }}</td>
+                    <td>{{ equipo['modelo'] }}</td>
+                    <td>{{ equipo['proveedor'] }}</td>
+                    <td>{{ equipo['version'] }}</td>
+                    <td>{{ equipo['localidad'] }}</td>
+                    <td>{{ equipo['region'] }}</td>
+                    <td>{{ equipo['estado'] }}</td>
+                    <td data-column-name="Accion">
+                        <div class="actions-column">
+                            <button class="actions-button edit-button" onclick="window.location.href='Device.html'">
+                                Versions
+                            </button>
+                            <button class="delete-button">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="9" style="text-align: center;">No se encontraron dispositivos</td>
+                </tr>
+            {% endif %}
         </tbody>
     </table>
+    <script>
+      document.getElementById("logout-button").addEventListener("click", () => {
+        // In a real application, you would clear the user's session or token here.
+        // For this example, we'll just redirect back to the login page.
+        window.location.href = "../../templates/index.html"; // Replace with your login page URL
+        });
+
+        // Example of handling the Load File button click
+      document
+        .getElementById("load-file-button")
+        .addEventListener("click", () => {
+            //  Add your logic to handle file loading (e.g., using a file input element)
+            window.location.href = "Load.html";
+        });
+
+        // Example of handling the Create New Device button click
+        document
+        .getElementById("create-new-device-button")
+        .addEventListener("click", () => {
+            // Add your logic to handle creating a new dive.
+            window.location.href = "Device.html";
+        });
+
+        // Example of handling the Documentation button click
+        document
+        .getElementById("documentation-button")
+        .addEventListener("click", () => {
+            // Add your logic to open the documentation (e.g., open a PDF or a web page).
+            window.location.href = "Docs.html";
+        });
+
+    </script>
 </body>
 </html>

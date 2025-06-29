@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Load Files</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/Fronted/src/styles/styles.css">
+    <style>
+        .load-container {
+            padding: 40px;
+            background-color: #1B263B;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 90%;
+            margin: 20px auto;
+            color: #E0E1DD;
+            box-sizing: border-box;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            color: #778DA9;
+            font-size: 2rem;
+            font-weight: 700;
+            width: 48%;
+            box-sizing: border-box;
+        }
+
+        .back-button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: #778DA9;
+            color: #E0E1DD;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-button:hover {
+            background-color: #415A77;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 7px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-button:active {
+            background-color: #1B263B;
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #415A77;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #415A77;
+            border-radius: 6px;
+            background-color: #E0E1DD;
+            color: #0D1B2A;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #778DA9;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .drop-area {
+            border: 2px dashed #415A77;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background-color: rgba(65, 90, 119, 0.1);
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .drop-area:hover, .drop-area.dragover {
+            background-color: rgba(65, 90, 119, 0.2);
+            border-color: #778DA9;
+        }
+
+        .drop-area p {
+            font-size: 1.1rem;
+            color: #415A77;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .accept-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: #778DA9;
+            color: #E0E1DD;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin-top: 30px;
+        }
+
+        .accept-button:hover {
+            background-color: #415A77;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 7px rgba(0, 0, 0, 0.2);
+        }
+
+        .accept-button:active {
+            background-color: #1B263B;
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .error-message {
+            color: #E53E3E;
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+            background-color: #F565651A;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #E53E3E;
+            display: none;
+        }
+
+         @media (max-width: 768px) {
+            .load-container {
+                padding: 30px;
+                width: 95%;
+            }
+            .page-title{
+               font-size: 1.5rem;
+               width: 100%;
+               margin-bottom: 20px;
+            }
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .back-button{
+                margin-bottom: 20px;
+            }
+            .form-group input, .form-group label {
+                font-size: 1rem;
+            }
+            .drop-area{
+                padding: 20px;
+            }
+            .drop-area p{
+                font-size: 1rem;
+            }
+        }
+         @media (max-width: 480px) {
+            .form-group input{
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+             .form-group label{
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="load-container">
+        <div class="page-header">
+            <h1 class="page-title">Load Files</h1>
+            <button class="back-button" id="back-button">Go Back to Dashboard</button>
+        </div>
+        <div class="form-group">
+            <label for="acronym">Acronym</label>
+            <input type="text" id="acronym" placeholder="Enter acronym">
+        </div>
+        <div class="form-group">
+            <label for="creation-date">Creation Date</label>
+            <input type="text" id="creation-date" placeholder="Enter creation date">
+        </div>
+        <div class="form-group">
+            <label for="version">File Version</label>
+            <input type="text" id="version" placeholder="Enter file version">
+        </div>
+        <div class="drop-area" id="drop-area">
+            <p>Drag and drop .txt files here, or click to select files</p>
+            <input type="file" id="file-input" accept=".txt">
+        </div>
+        <button class="accept-button" id="accept-button">Accept</button>
+        <div id="error-message" class="error-message"></div>
+    </div>
+    <script>
+        const backButton = document.getElementById('back-button');
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-input');
+        const acceptButton = document.getElementById('accept-button');
+        const errorMessage = document.getElementById('error-message');
+
+        backButton.addEventListener('click', () => {
+            window.location.href = 'dashboard.html';
+        });
+
+        dropArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropArea.classList.add('dragover');
+        });
+
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('dragover');
+        });
+
+        dropArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropArea.classList.remove('dragover');
+            handleFiles(event.dataTransfer.files);
+        });
+
+        dropArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', () => {
+            handleFiles(fileInput.files);
+        });
+
+        let uploadedFile = null; // Store the uploaded file
+
+        function handleFiles(files) {
+            //  Add your file processing logic here.
+            if (files.length > 0) {
+                const file = files[0]; // Only handle the first file
+                if (file.type === 'text/plain') {
+                    console.log('File dropped:', file);
+                    uploadedFile = file; // Store for later validation
+
+                } else {
+                    errorMessage.textContent = 'Invalid file type. Please upload only .txt files.';
+                    errorMessage.style.display = 'block';
+                    uploadedFile = null;
+                    return;
+                }
+            }
+            errorMessage.style.display = 'none';
+        }
+
+        acceptButton.addEventListener('click', () => {
+            const acronym = document.getElementById('acronym').value.trim();
+            const creationDate = document.getElementById('creation-date').value.trim();
+            const version = document.getElementById('version').value.trim();
+
+            let hasErrors = false;
+            errorMessage.textContent = ''; // Clear previous errors
+            errorMessage.style.display = 'none';
+
+            // Validate Acronym (XXX-XXX-00)
+            const acronymRegex = /^[A-Za-z]{3}-[A-Za-z]{3}-\d{2}$/;
+            if (!acronymRegex.test(acronym)) {
+                errorMessage.textContent += 'Invalid Acronym format.  Use XXX-XXX-00 format.  ';
+                hasErrors = true;
+            }
+
+            // Validate Creation Date (basic format check - YYYY-MM-DD)
+             const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+            if (!dateRegex.test(creationDate)) {
+                errorMessage.textContent += 'Invalid Date format. Use YYYY-MM-DD. ';
+                hasErrors = true;
+            }
+            else{
+                 // Further date validation (check for valid month and day)
+                const year = parseInt(creationDate.substring(0, 4));
+                const month = parseInt(creationDate.substring(5, 7));
+                const day = parseInt(creationDate.substring(8, 10));
+
+                if (month < 1 || month > 12 || day < 1 || day > 31) {
+                    errorMessage.textContent += 'Invalid Date.  ';
+                    hasErrors = true;
+                }
+                else if ((month==4 || month == 6 || month==9 || month ==11) && day>30){
+                     errorMessage.textContent += 'Invalid Date.  ';
+                    hasErrors = true;
+                }
+                else if (month == 2){
+                    //check leap year
+                    const isLeap = ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+                    if (day > 29 || (day == 29 && !isLeap)){
+                         errorMessage.textContent += 'Invalid Date.  ';
+                        hasErrors = true;
+                    }
+                }
+            }
+
+
+
+            // Validate File Upload
+            if (!uploadedFile) {
+                errorMessage.textContent += 'Please upload a .txt file. ';
+                hasErrors = true;
+            }
+
+            //If version is empty
+            if (!version) {
+                 errorMessage.textContent += 'Please enter a version. ';
+                hasErrors = true;
+            }
+
+            if (hasErrors) {
+                errorMessage.style.display = 'block';
+                return; // Stop processing if there are errors
+            }
+
+            // If all validations pass, you can proceed with form submission or further processing
+            console.log('Form is valid. Acronym:', acronym, 'Date:', creationDate, 'Version:', version, 'File:', uploadedFile);
+            alert('Form is valid and ready to be submitted! Check console for data.');
+            //  You would send the data to the server using fetch or XMLHttpRequest here.
+             /*
+            const formData = new FormData();
+            formData.append('acronym', acronym);
+            formData.append('creationDate', creationDate);
+            formData.append('version', version);
+            formData.append('file', uploadedFile);
+
+            fetch('your-server-endpoint.php', {  //  Replace with your server-side script
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.text()) // or response.json()
+            .then(data => {
+                console.log('Server response:', data);
+                //  Handle the server response (e.g., show a success message, redirect, etc.)
+                alert('Data successfully sent to server');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while sending data.');
+            });
+            */
+        });
+    </script>
+</body>
+</html>

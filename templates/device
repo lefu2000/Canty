@@ -1,0 +1,44 @@
+{% extends './layout_device.html' %}
+
+{% block title %} 
+Tittle: [] - configuracion
+
+{% %}{% endblock %}
+
+
+{% block script %}
+{% endblock %}
+
+
+    {% if all_version %}
+        {% for version in all_version %} 
+
+        {{ equipo['acronimo'] }}    
+
+
+<!-- Mostrar la tabla de versiones -->
+<table>
+  <!-- Cabeceras de tabla -->
+  <tbody>
+    {% for version in all_version %}
+      <tr>
+        <td>{{ version.fecha }}</td>
+        <td>{{ version.version }}</td>
+        <!-- otras columnas -->
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+  <!-- Navegación de paginación -->
+<div class="pagination">
+  {% if pagination.has_prev %}
+    <a href="{{ url_for('device', page=pagination.page-1) }}">Anterior</a>
+  {% endif %}
+  
+  <span>Página {{ pagination.page }} de {{ pagination.total_pages }}</span>
+  
+  {% if pagination.has_next %}
+    <a href="{{ url_for('device', page=pagination.page+1) }}">Siguiente</a>
+  {% endif %}
+</table>

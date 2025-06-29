@@ -1,0 +1,12 @@
+
+Lenguaje = Python
+Framework = Flask - SQLite
+
+
+AJAX
+
+AJAX, que significa "Asynchronous JavaScript and XML", no es un lenguaje de programación, 
+sino una técnica para construir aplicaciones web interactivas
+
+pip install flask-limiter
+pip install flask_wtf
