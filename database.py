@@ -26,6 +26,7 @@ def init_db():
         fecha DATE NOT NULL,
         tamano REAL NOT NULL,
         autor_id INTEGER NOT NULL,
+        status TEXT NOT NULL,
         contenido BLOB,
         FOREIGN KEY (autor_id) REFERENCES User_Login(id)
     )

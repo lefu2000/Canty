@@ -1,168 +1,44 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Versiones</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #2563eb;
-            --secondary-color: #1e40af;
-            --text-color: #1f2937;
-            --border-color: #e5e7eb;
-            --hover-bg: #f3f4f6;
-        }
+{% extends "dashboard_finish.html" %}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            color: var(--text-color);
-            line-height: 1.6;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        h1 {
-            color: var(--primary-color);
-            margin-bottom: 24px;
-            font-weight: 600;
-        }
+{% block title %}Versiones de Configuración{% endblock %}
 
-        .back-button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 6px;
-            background-color: #778DA9;
-            color: #E0E1DD;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pagination.css') }}">
+{% endblock %}
 
-        .back-button:hover {
-            background-color: #415A77;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 7px rgba(0, 0, 0, 0.2);
-        }
+{% block dashboard_content %}
+    <div class="container">
+        <!-- Filtro por Dispositivo -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <form method="get" class="row g-2">
+                    <div class="col-md-8">
+                        <select name="device_id" class="form-select">
+                            <option value="">Todos los dispositivos</option>
+                            {% for device in devices %}
+                            <option value="{{ device.id }}" {% if device.id == current_device %}selected{% endif %}>
+                                {{ device.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary w-100">
+                            Filtrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-        .back-button:active {
-            background-color: #141e30;
-            transform: translateY(0);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
-        
-        .table-container {
-            overflow-x: auto;
-            margin-bottom: 30px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-        }
-        
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        th {
-            background-color: #f9fafb;
-            font-weight: 600;
-            color: var(--text-color);
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-        
-        tr:hover {
-            background-color: var(--hover-bg);
-        }
-        
-        .status {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        
-        .status-active {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-        
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            margin-top: 30px;
-        }
-        
-        .pagination a, .pagination span {
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-        }
-        
-        .pagination a {
-            color: var(--primary-color);
-            border: 1px solid var(--border-color);
-            transition: all 0.2s;
-        }
-        
-        .pagination a:hover {
-            background-color: var(--hover-bg);
-        }
-        
-        .pagination .current {
-            background-color: var(--primary-color);
-            color: white;
-            font-weight: 500;
-        }
-        
-        .empty-message {
-            text-align: center;
-            padding: 40px;
-            color: #6b7280;
-            background-color: #f9fafb;
-            border-radius: 8px;
-        }
-        
-        @media (max-width: 768px) {
-            th, td {
-                padding: 8px 10px;
-            }
-            
-            .pagination {
-                flex-wrap: wrap;
-            }
-
-           .back-button {
-                margin-bottom: 20px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <h1>Gestión de Versiones</h1>
-    <button class="back-button" id="back-button">Volver al inicio</button>
-    
-    <div class="table-container">
-        {% if all_version %}
-            <table>
+        <!-- Tabla de Versiones -->
+        <div class="table-responsive">
+            <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Versión</th>
+                        <th>Dispositivo</th>
                         <th>Fecha</th>
                         <th>Estado</th>
                         <th>Acciones</th>
@@ -173,75 +49,68 @@
                     <tr>
                         <td>{{ version.id }}</td>
                         <td>{{ version.version }}</td>
-                        <td>{{ version.fecha }}</td>
+                        <td>{{ version.device_name }}</td>
+                        <td>{{ version.fecha | datetime_format }}</td>
                         <td>
-                            <span class="status {% if version.estado == 'activo' %}status-active{% endif %}">
-                                {{ version.estado }}
+                            <span class="badge {% if version.status == 'active' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ 'Activo' if version.status == 'active' else 'Inactivo' }}
                             </span>
                         </td>
                         <td>
-                            <a href="{{ url_for('edit_version', id=version.id) }}" class="action-link">Editar</a>
+                            <a href="{{ url_for('download_version', id=version.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-download"></i>
+                            </a>
+                            {% if version.status != 'active' %}
+                            <form action="{{ url_for('activate_version', id=version.id) }}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-success" 
+                                    onclick="return confirm('¿Activar esta versión?')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+                            {% endif %}
                         </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron versiones</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        {% else %}
-            <div class="empty-message">
-                <p>No hay versiones disponibles</p>
-            </div>
-        {% endif %}
-    </div>
-    
-    {% if pagination.total > pagination.per_page %}
-    <div class="pagination">
-        {% if pagination.has_prev %}
-            <a href="{{ url_for('device', page=pagination.page-1) }}">&laquo; Anterior</a>
-        {% endif %}
-        
-        {% for p in range(1, pagination.total_pages + 1) %}
-            {% if p == pagination.page %}
-                <span class="current">{{ p }}</span>
-            {% else %}
-                <a href="{{ url_for('device', page=p) }}">{{ p }}</a>
-            {% endif %}
-        {% endfor %}
-        
-        {% if pagination.has_next %}
-            <a href="{{ url_for('device', page=pagination.page+1) }}">Siguiente &raquo;</a>
-        {% endif %}
-    </div>
-    
-    <div style="text-align: center; margin-top: 10px; color: #6b7280;">
-        Mostrando {{ ((pagination.page-1)*pagination.per_page)+1 }} - 
-        {{ [pagination.page*pagination.per_page, pagination.total]|min }} 
-        de {{ pagination.total }} registros
-    </div>
-    {% endif %}
+        </div>
 
-    <script>
-    function downloadFile(version) {
-                // Implementar lógica de descarga
-                fetch(`/download/${version}`)
-                    .then(response => response.blob())
-                    .then(blob => {
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `config_${version}.bin`;
-                        document.body.appendChild(a);
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error al descargar la configuración');
-                    });
-            }
-    
-    document.getElementById('back-button').addEventListener('click', function() {
-    window.location.href = "{{ url_for('dashboard') }}";
-    });
-    </script>
-</body>
-</html>
+        <!-- Paginación -->
+        {% if pagination.total_pages > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" 
+                       href="{{ url_for('device', page=pagination.page-1, per_page=pagination.per_page, device_id=current_device) }}">
+                        Anterior
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for p in range(1, pagination.total_pages + 1) %}
+                <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                    <a class="page-link" 
+                       href="{{ url_for('device', page=p, per_page=pagination.per_page, device_id=current_device) }}">
+                        {{ p }}
+                    </a>
+                </li>
+                {% endfor %}
+
+                {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link" 
+                       href="{{ url_for('device', page=pagination.page+1, per_page=pagination.per_page, device_id=current_device) }}">
+                        Siguiente
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+{% endblock %}

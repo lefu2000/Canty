@@ -4,28 +4,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Network Config Manager{% endblock %}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- CSS común -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>{% block title %}Canty Network Manager{% endblock %}</title>
+    
+    <!-- CSS Global -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    
+    <!-- Bloque para CSS específico -->
     {% block extra_css %}{% endblock %}
 </head>
-<body class="{% block body_class %}{% endblock %}">
-    {% if session.user_id %}
-    <header class="app-header">
-        <nav>
-            <!-- Menú de navegación -->
-        </nav>
-        <span>Bienvenido, {{ session.usuario }}</span>
-    </header>
+<body>
+    <!-- Header Condicional -->
+    {% if current_user.is_authenticated %}
+        <header class="dashboard-header">
+            <nav>...</nav>
+        </header>
+    {% else %}
+        <header class="auth-header">
+            <h1>Canty</h1>
+        </header>
     {% endif %}
 
-    <main class="main-content">
+    <!-- Sistema de Mensajes Flash -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <div class="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Contenido Principal -->
+    <main>
         {% block content %}{% endblock %}
     </main>
 
-    <!-- JS común -->
-    <script src="{{ url_for('static', filename='js/style.js') }}"></script>
+    <!-- Footer -->
+    <footer>
+        <p>© 2024 Canty Network Manager</p>
+    </footer>
+
+    <!-- JS Global -->
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    
+    <!-- Bloque para JS específico -->
     {% block extra_js %}{% endblock %}
 </body>
 </html>

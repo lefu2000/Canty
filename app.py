@@ -79,6 +79,12 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+@app.template_filter('datetime_format')
+def datetime_format(value):
+    if value is None:
+        return ""
+    return value.strftime('%d/%m/%Y %H:%M')
+
 @app.route('/login', methods=['GET', 'POST'])
 @limiter.limit("5 per minute", methods=['POST'])
 def login():
@@ -135,34 +141,53 @@ def device():
     if not is_authenticated():
         return redirect(url_for('login'))
     
-    # Configuración de paginación
-    page = request.args.get('page', 1, type=int)  # Página actual, default 1
-    per_page = request.args.get('per_page', 10, type=int)
-    if per_page not in [10, 25, 50, 100]:  # Limitar opciones
-        per_page = 10 #Numero de Item por pagina
     try:
+        # Configuración de paginación
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        device_id = request.args.get('device_id', type=int)  # Filtro por dispositivo
+        
+        # Validar parámetros
+        per_page = 10 if per_page not in [10, 25, 50, 100] else per_page
+        
         with closing(get_db()) as conn:
-            # 1. Contar el total de registros
-            total_versions = conn.execute('SELECT COUNT(*) FROM Version').fetchone()[0]
+            # Query base con filtro opcional
+            base_query = '''
+                SELECT 
+                    v.id, 
+                    v.version, 
+                    v.fecha, 
+                    v.status,
+                    d.name as device_name
+                FROM Version v
+                LEFT JOIN Device d ON v.device_id = d.id
+                {where}
+                ORDER BY v.fecha DESC
+            '''
             
-            # 2. Calcular el offset (desplazamiento)
+            # Construir WHERE dinámico
+            where_clause = 'WHERE v.device_id = ?' if device_id else ''
+            params = [device_id] if device_id else []
+            
+            # 1. Contar total
+            count_query = f'SELECT COUNT(*) FROM Version v {where_clause}'
+            total_versions = conn.execute(count_query, params).fetchone()[0]
+            
+            # 2. Obtener datos paginados
             offset = (page - 1) * per_page
+            data_query = base_query.format(where=where_clause) + ' LIMIT ? OFFSET ?'
+            versions = conn.execute(data_query, params + [per_page, offset]).fetchall()
             
-            # 3. Obtener registros paginados (últimas versiones primero)
-            versions = conn.execute(
-                '''
-                SELECT * FROM Version 
-                ORDER BY fecha DESC
-                LIMIT ? OFFSET ?
-                ''',
-                (per_page, offset)
-            ).fetchall()
-            
-            # 4. Calcular total de páginas
+            # 3. Calcular paginación
             total_pages = (total_versions + per_page - 1) // per_page
             
-            return render_template('device_plantilla.html',
+            # Obtener lista de dispositivos para el filtro
+            devices = conn.execute('SELECT id, name FROM Device ORDER BY name').fetchall()
+            
+            return render_template('device.html',
                 all_version=versions,
+                devices=devices,
+                current_device=device_id,
                 pagination={
                     'page': page,
                     'per_page': per_page,
@@ -172,16 +197,14 @@ def device():
                     'has_prev': page > 1
                 }
             )
-    
+            
     except sqlite3.Error as e:
-        logger.error(f"Error de base de datos: {str(e)}")
-        return render_template('error.html', 
-                            error="Error al acceder a los datos de configuración",
-                            error_code="DB_ERROR"), 500
+        logger.error(f"Database error: {e}")
+        return render_template('error.html', error="Database operation failed"), 500
         
     except Exception as e:
-        logger.error(f"Error inesperado: {str(e)}")
-        return render_template('error.html', error="Ocurrió un error inesperado"), 500
+        logger.error(f"Unexpected error: {e}")
+        return render_template('error.html', error="Internal server error"), 500
 
 @app.route('/dashboard')
 @login_required
@@ -390,6 +413,33 @@ def eliminar_equipo(id):
             flash('Error al eliminar el equipo', 'error')
             
     return redirect(url_for('list_equipos'))
+
+# Ruta para obtener versiones
+@app.route('/api/devices/<int:device_id>/versions')
+@login_required
+def get_device_versions(device_id):
+    versions = Version.query.filter_by(device_id=device_id).all()
+    return jsonify([{
+        'id': v.id,
+        'version': v.version_number,
+        'fecha': v.date_created.isoformat(),
+        'status': 'active' if v.is_active else 'inactive'
+    } for v in versions])
+
+# Ruta para activar versión
+@app.route('/api/versions/<int:version_id>/activate', methods=['POST'])
+@login_required
+def activate_version(version_id):
+    version = Version.query.get_or_404(version_id)
+    # Lógica para desactivar otras versiones y activar esta
+    return jsonify({'success': True})
+
+
+
+
+
+
+
 
 @app.route('/admin/users')
 @admin_required
