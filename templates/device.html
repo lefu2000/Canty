@@ -13,7 +13,7 @@
             --border-color: #e5e7eb;
             --hover-bg: #f3f4f6;
         }
-        
+
         body {
             font-family: 'Inter', sans-serif;
             color: var(--text-color);
@@ -27,6 +27,31 @@
             color: var(--primary-color);
             margin-bottom: 24px;
             font-weight: 600;
+        }
+
+        .back-button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: #778DA9;
+            color: #E0E1DD;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-button:hover {
+            background-color: #415A77;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 7px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-button:active {
+            background-color: #141e30;
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
         
         .table-container {
@@ -120,11 +145,16 @@
             .pagination {
                 flex-wrap: wrap;
             }
+
+           .back-button {
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <h1>Gestión de Versiones</h1>
+    <button class="back-button" id="back-button">Volver al inicio</button>
     
     <div class="table-container">
         {% if all_version %}
@@ -134,7 +164,6 @@
                         <th>ID</th>
                         <th>Versión</th>
                         <th>Fecha</th>
-                        <th>Descripción</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
@@ -145,7 +174,6 @@
                         <td>{{ version.id }}</td>
                         <td>{{ version.version }}</td>
                         <td>{{ version.fecha }}</td>
-                        <td>{{ version.descripcion }}</td>
                         <td>
                             <span class="status {% if version.estado == 'activo' %}status-active{% endif %}">
                                 {{ version.estado }}
@@ -190,5 +218,30 @@
         de {{ pagination.total }} registros
     </div>
     {% endif %}
+
+    <script>
+    function downloadFile(version) {
+                // Implementar lógica de descarga
+                fetch(`/download/${version}`)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `config_${version}.bin`;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al descargar la configuración');
+                    });
+            }
+    
+    document.getElementById('back-button').addEventListener('click', function() {
+    window.location.href = "{{ url_for('dashboard') }}";
+    });
+    </script>
 </body>
 </html>

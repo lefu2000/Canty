@@ -1,0 +1,111 @@
+{% extends "dashboard_finish.html" %}
+
+{% block content %}
+<div class="main-content">
+    <div class="header">
+        <h1>Gestión de Equipos</h1>
+        <a href="{{ url_for('crear_equipo') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo Equipo
+        </a>
+    </div>
+
+    <div class="table-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Acrónimo</th>
+                        <th>IP</th>
+                        <th>Nombre</th>
+                        <th>Modelo</th>
+                        <th>Proveedor</th>
+                        <th>Localidad</th>
+                        <th>Región</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for equipo in equipos %}
+                    <tr>
+                        <td>{{ equipo.acronimo }}</td>
+                        <td>{{ equipo.ip }}</td>
+                        <td>{{ equipo.nombre_equipo }}</td>
+                        <td>{{ equipo.modelo }}</td>
+                        <td>{{ equipo.proveedor }}</td>
+                        <td>{{ equipo.localidad }}</td>
+                        <td>{{ equipo.region }}</td>
+                        <td>
+                            <span class="status-badge {% if equipo.estado == 'activo' %}status-active{% else %}status-inactive{% endif %}">
+                                {{ equipo.estado }}
+                            </span>
+                        </td>
+                        <td class="actions-cell">
+                            <a href="{{ url_for('editar_equipo', id=equipo.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('eliminar_equipo', id=equipo.id) }}" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar este equipo permanentemente?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .alert {
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .btn {
+        padding: 8px 15px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-light);
+        color: white;
+    }
+    
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+    
+    .btn-danger {
+        background-color: var(--error);
+        color: white;
+    }
+</style>
+{% endblock %}

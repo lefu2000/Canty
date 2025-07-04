@@ -1,0 +1,31 @@
+<!-- network_config_manager/templates/base.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Network Config Manager{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- CSS común -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    {% if session.user_id %}
+    <header class="app-header">
+        <nav>
+            <!-- Menú de navegación -->
+        </nav>
+        <span>Bienvenido, {{ session.usuario }}</span>
+    </header>
+    {% endif %}
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- JS común -->
+    <script src="{{ url_for('static', filename='js/style.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

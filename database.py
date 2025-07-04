@@ -6,6 +6,12 @@ import os
 
 logger = logging.getLogger(__name__)
 
+def get_db():
+    """Devuelve una conexión a la base de datos SQLite."""
+    conn = sqlite3.connect('network_configs.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
 def init_db():
     """Inicializa o actualiza la base de datos"""
     db_exists = os.path.exists('network_configs.db')
@@ -16,11 +22,12 @@ def init_db():
     c.execute('''
     CREATE TABLE IF NOT EXISTS Version (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        version TEXT,
-        fecha TEXT NOT NULL, 
+        version TEXT NOT NULL,
+        fecha DATE NOT NULL,
         tamano REAL NOT NULL,
-        autor TEXT NOT NULL,
-        contenido TEXT
+        autor_id INTEGER NOT NULL,
+        contenido BLOB,
+        FOREIGN KEY (autor_id) REFERENCES User_Login(id)
     )
     ''')
 
@@ -32,15 +39,16 @@ def init_db():
     c.execute('''
     CREATE TABLE IF NOT EXISTS Equipo (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        acronimo TEXT UNIQUE NOT NULL UNIQUE,
-        ip TEXT UNIQUE NOT NULL UNIQUE,
-        nombre_equipo TEXT,
-        modelo TEXT,
-        proveedor TEXT NOT NULL,
-        version TEXT,
-        localidad TEXT,
         region TEXT,
-        estado TEXT
+        estado TEXT,
+        localidad TEXT,
+        nombre_equipo TEXT,
+        acronimo TEXT UNIQUE,
+        ip TEXT UNIQUE,
+        modelo TEXT,
+        proveedor TEXT,
+        version_id INTEGER,
+        FOREIGN KEY (version_id) REFERENCES Version(id)
     )
     ''')
     
@@ -94,6 +102,58 @@ def init_db():
     
     conn.commit()
     conn.close()
+
+def get_versions_with_authors():
+    """Obtiene versiones con información del autor"""
+    conn = get_db()
+    return conn.execute('''
+    SELECT v.id, v.version, v.fecha, v.tamano, 
+           u.usuario as autor, v.contenido
+    FROM Version v
+    JOIN User_Login u ON v.autor_id = u.id
+    ORDER BY v.fecha DESC
+    ''').fetchall()
+
+def get_equipos_with_versions():
+    """Obtiene equipos con información de versión"""
+    conn = get_db()
+    return conn.execute('''
+    SELECT e.id, e.nombre_equipo, e.acronimo, e.ip,
+           v.version as version_firmware
+    FROM Equipo e
+    LEFT JOIN Version v ON e.version_id = v.id
+    ''').fetchall()
+
+def create_version(version_data, user_id, content):
+    """Crea una nueva versión asociada a un usuario"""
+    conn = get_db()
+    c = conn.cursor()
+    c.execute('''
+    INSERT INTO Version (version, fecha, tamano, autor_id, contenido)
+    VALUES (?, ?, ?, ?, ?)
+    ''', (
+        version_data['version'],
+        version_data['fecha'],
+        version_data['tamano'],
+        user_id,
+        content
+    ))
+    conn.commit()
+    return c.lastrowid
+
+def create_user(usuario, contrasena, tipo_usuario=2):
+    """Crea un nuevo usuario con tipo especificado"""
+    conn = get_db()
+    hashed_pw = generate_password_hash(contrasena)
+    try:
+        conn.execute(
+            'INSERT INTO User_Login (usuario, contrasena, tipo_usuario) VALUES (?, ?, ?)',
+            (usuario, hashed_pw, tipo_usuario)
+        )
+        conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False  # Usuario ya existe
 
 def reset_db():
     """Reinicia completamente la base de datos (solo para desarrollo)"""

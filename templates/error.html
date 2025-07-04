@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Sistema de Configuraciones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --error-primary: #e74c3c;
+            --error-secondary: #c0392b;
+            --text-dark: #2c3e50;
+            --text-light: #ecf0f1;
+            --bg-light: #f9f9f9;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .error-container {
+            max-width: 800px;
+            width: 90%;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background: white;
+            text-align: center;
+            border-left: 5px solid var(--error-primary);
+        }
+        
+        .error-icon {
+            font-size: 4rem;
+            color: var(--error-primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        h1 {
+            color: var(--error-primary);
+            margin-top: 0;
+            font-size: 2.2rem;
+            font-weight: 600;
+        }
+        
+        .error-message {
+            font-size: 1.2rem;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background-color: #fdeaea;
+            border-radius: 5px;
+            border-left: 3px solid var(--error-secondary);
+        }
+        
+        .error-code {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background-color: var(--error-primary);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .action-buttons {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background-color: var(--error-primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--error-secondary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .technical-details {
+            margin-top: 2rem;
+            text-align: left;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            border-top: 1px dashed #ddd;
+            padding-top: 1rem;
+        }
+        
+        @media (max-width: 600px) {
+            .error-container {
+                padding: 1.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+        
+        <h1>Ocurrió un error</h1>
+        
+        {% if error_code %}
+        <div class="error-code">Código: {{ error_code }}</div>
+        {% endif %}
+        
+        <div class="error-message">
+            {{ error }}
+        </div>
+        
+        <div class="action-buttons">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                Volver al inicio
+            </a>
+            <a href="mailto:soporte@tuempresa.com" class="btn btn-secondary">
+                Contactar soporte
+            </a>
+        </div>
+        
+        {% if debug and error_details %}
+        <div class="technical-details">
+            <h3>Detalles técnicos:</h3>
+            <pre>{{ error_details }}</pre>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Network Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <style>
+      :root {
+          --primary-dark: #1b263b;
+          --primary: #415a77;
+          --primary-light: #778da9;
+          --background: #e0e1dd;
+          --error: #a84e42;
+      }
+      
+      
+      .sheet-container {
+          background-color: #1b263b; /* Color de Cuadro de Botones */
+          padding: 25px;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          width: 100%;
+          max-width: 98vw;
+          margin: 0 auto;
+          box-sizing: border-box;
+      }
+
+        .search-container {
+          display: flex;
+          justify-content: center;
+          margin-bottom: 20px;
+          width: 100%;
+      }
+      
+      .button-group {
+          display: flex;
+          justify-content: center;
+          margin-bottom: 20px;
+          gap: 10px;
+          flex-wrap: wrap;
+      }
+      
+      .button-group button {
+          padding: 10px 18px;
+          border: none;
+          border-radius: 6px;
+          background-color: var(--primary-light);
+          color: white;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+      }
+      
+      .button-group button:hover {
+          background-color: var(--primary);
+          transform: translateY(-1px);
+      }
+      
+      #search-bar {
+          width: 100%;
+          max-width: 500px;
+          padding: 10px 15px;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          font-size: 14px;
+          margin-bottom: 20px;
+          transition: border 0.2s;
+      }
+      
+      #search-bar:focus {
+          outline: none;
+          border-color: var(--primary-light);
+          box-shadow: 0 0 0 2px rgba(119, 141, 169, 0.2);
+      }
+      
+      .table-responsive {
+          width: 100%;
+          overflow-x: auto;
+          margin-bottom: 20px;
+          border-radius: 8px;
+          -webkit-overflow-scrolling: touch;
+      }
+      
+      .data-table {
+          width: 100%;
+          min-width: fit-content;
+          border-collapse: collapse;
+          background-color: white;
+          color: black;
+      }
+      
+      .data-table thead th {
+          background-color: var(--primary);
+          color: white;
+          padding: 12px 15px;
+          text-align: left;
+          font-weight: 600;
+          position: sticky;
+          top: 0;
+          white-space: nowrap;
+      }
+      
+      .data-table tbody td {
+          padding: 12px 15px;
+          border-bottom: 1px solid #eee;
+          white-space: nowrap;
+      }
+      
+      .data-table tbody tr:hover {
+          background-color: #f8f9fa;
+      }
+      
+      .actions-cell {
+          display: flex;
+          gap: 8px;
+      }
+      
+      .table-btn {
+          padding: 6px 12px;
+          border: none;
+          border-radius: 4px;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s;
+      }
+      
+      .edit-btn {
+          background-color: var(--primary-light);
+          color: white;
+      }
+      
+      .delete-btn {
+          background-color: var(--error);
+          color: white;
+      }
+      
+      .table-btn:hover {
+          opacity: 0.85;
+          transform: translateY(-1px);
+      }
+      
+      .status-active {
+          color: #2e7d32;
+          font-weight: 500;
+      }
+      
+      .status-inactive {
+          color: var(--error);
+          font-weight: 500;
+      }
+      
+      /* Responsive styles */
+      @media (max-width: 768px) {
+          .sheet-container {
+              padding: 15px;
+          }
+          
+          .button-group {
+              flex-direction: column;
+          }
+          
+          .button-group button {
+              width: 100%;
+          }
+          
+          #search-bar {
+              max-width: 100%;
+          }
+          
+          .data-table thead {
+              display: none;
+          }
+          
+          .data-table tbody tr {
+              display: block;
+              margin-bottom: 15px;
+              border: 1px solid #ddd;
+              border-radius: 8px;
+          }
+          
+          .data-table tbody td {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              text-align: right;
+              padding-left: 50%;
+              position: relative;
+              border-bottom: 1px solid #eee;
+              width: 100%;
+          }
+          
+          .data-table tbody td::before {
+              content: attr(data-label);
+              position: absolute;
+              left: 15px;
+              font-weight: 600;
+              color: var(--primary);
+          }
+          
+          .actions-cell {
+              justify-content: flex-end;
+          }
+      }
+    </style>
+</head>
+<body>
+    <div class="sheet-container">
+        <div class="button-group">
+            <button id="logout-button">Cerrar sesión</button>
+            <button id="load-file-button">Cargar Archivo</button>
+            <button id="create-new-device-button">Crear Nuevo Dispositivo</button>
+
+            {% if session.tipo_usuario == 1 %}  <!-- Solo para admin -->
+            <button id="manage-users-button" 
+                    onclick="window.location.href='{{ url_for('manage_users') }}'">
+                Gestionar Usuarios
+            </button>
+            {% endif %}
+            
+            <button id="documentation-button">Documentación</button>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" id="search-bar" placeholder="Buscar dispositivos..." />
+        </div>
+
+        
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Acrónimo</th>
+                        <th>IP</th>
+                        <th>Nombre</th>
+                        <th>Modelo</th>
+                        <th>Proveedor</th>
+                        <th>Localidad</th>
+                        <th>Región</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if equipos %}
+                        {% for equipo in equipos %}
+                        <tr>
+                            <td data-label="Acrónimo">{{ equipo['acronimo'] }}</td>
+                            <td data-label="IP">{{ equipo['ip'] }}</td>
+                            <td data-label="Nombre">{{ equipo['nombre_equipo'] }}</td>
+                            <td data-label="Modelo">{{ equipo['modelo'] }}</td>
+                            <td data-label="Proveedor">{{ equipo['proveedor'] }}</td>
+                            <td data-label="Localidad">{{ equipo['localidad'] }}</td>
+                            <td data-label="Región">{{ equipo['region'] }}</td>
+                            <td data-label="Estado" class="status-{{ equipo['estado']|lower }}">{{ equipo['estado'] }}</td>
+                            <td data-label="Acciones">
+                                <div class="actions-cell">
+                                    <button class="table-btn edit-btn" 
+                                            onclick="window.location.href='{{ url_for('device') }}'">
+                                        Archivo
+                                    </button>
+                                    <button class="table-btn delete-btn">Eliminar</button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="10" style="text-align: center;">No se encontraron dispositivos</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Funcionalidad de búsqueda
+        document.getElementById('search-bar').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.data-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Botones de acción
+        document.getElementById('logout-button').addEventListener('click', () => {
+            window.location.href = "{{ url_for('logout') }}";
+        });
+
+        document.getElementById('load-file-button').addEventListener('click', () => {
+            window.location.href = "Load.html"; /*Ruta Cargar Archivo*/
+        });
+
+        document.getElementById('create-new-device-button').addEventListener('click', () => {
+            window.location.href = "layout_device.html"; /*Ruta Crear Nuevo Equipo*/
+        });
+
+        document.getElementById('register-button').addEventListener('click', () => {
+            window.location.href = "Docs.html";
+        });
+        
+        document.getElementById('documentation-button').addEventListener('click', () => {
+            window.location.href = "Docs.html";
+        });
+
+
+        // Botones de eliminar
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                if(confirm('¿Estás seguro de que deseas eliminar este dispositivo?')) {
+                    const row = this.closest('tr');
+                    row.style.opacity = '0.5';
+                    // Aquí iría la llamada AJAX para eliminar en el servidor
+                }
+                e.stopPropagation();
+            });
+        });
+    </script>
+</body>
+</html>

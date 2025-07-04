@@ -1,0 +1,81 @@
+{% extends "dashboard_finish.html" %}
+
+{% block content %}
+<div class="main-content">
+    <div class="header">
+        <h1>Editar Equipo</h1>
+        <a href="{{ url_for('list_equipos') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('editar_equipo', id=equipo.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="form-group">
+                    <label for="acronimo">Acrónimo</label>
+                    <input type="text" id="acronimo" name="acronimo" class="form-control" required 
+                           value="{{ equipo.acronimo }}" pattern="[A-Za-z]{3}-[A-Za-z]{3}-\d{2}">
+                    <small class="form-text">Formato: XXX-XXX-00 (3 letras, guión, 3 letras, guión, 2 números)</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ip">Dirección IP</label>
+                    <input type="text" id="ip" name="ip" class="form-control" required 
+                           value="{{ equipo.ip }}" pattern="^(\d{1,3}\.){3}\d{1,3}$">
+                </div>
+                
+                <div class="form-group">
+                    <label for="nombre_equipo">Nombre del Equipo</label>
+                    <input type="text" id="nombre_equipo" name="nombre_equipo" class="form-control" required
+                           value="{{ equipo.nombre_equipo }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="modelo">Modelo</label>
+                    <input type="text" id="modelo" name="modelo" class="form-control" required
+                           value="{{ equipo.modelo }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="proveedor">Proveedor</label>
+                    <select id="proveedor" name="proveedor" class="form-control" required>
+                        <option value="Cisco" {% if equipo.proveedor == 'Cisco' %}selected{% endif %}>Cisco</option>
+                        <option value="Huawei" {% if equipo.proveedor == 'Huawei' %}selected{% endif %}>Huawei</option>
+                        <option value="Juniper" {% if equipo.proveedor == 'Juniper' %}selected{% endif %}>Juniper</option>
+                        <option value="MikroTik" {% if equipo.proveedor == 'MikroTik' %}selected{% endif %}>MikroTik</option>
+                        <option value="Otro" {% if equipo.proveedor == 'Otro' %}selected{% endif %}>Otro</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="localidad">Localidad</label>
+                    <input type="text" id="localidad" name="localidad" class="form-control" required
+                           value="{{ equipo.localidad }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="region">Región</label>
+                    <input type="text" id="region" name="region" class="form-control" required
+                           value="{{ equipo.region }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="estado">Estado</label>
+                    <select id="estado" name="estado" class="form-control" required>
+                        <option value="activo" {% if equipo.estado == 'activo' %}selected{% endif %}>Activo</option>
+                        <option value="inactivo" {% if equipo.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                        <option value="mantenimiento" {% if equipo.estado == 'mantenimiento' %}selected{% endif %}>En mantenimiento</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Actualizar Equipo
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

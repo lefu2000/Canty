@@ -26,6 +26,31 @@ def init_db():
     conn.commit()
     conn.close()
 
+def migrate_data():
+    conn = sqlite3.connect('network_configs.db')
+    c = conn.cursor()
+    
+    # 1. Crear tabla temporal para usuarios existentes en Version.autor
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS Temp_autores AS
+    SELECT DISTINCT autor FROM Version WHERE autor IS NOT NULL
+    ''')
+    
+    # 2. Insertar usuarios ficticios si no existen
+    c.execute('''
+    INSERT OR IGNORE INTO User_Login (usuario, contrasena, tipo_usuario)
+    SELECT autor, 'migrated_password', 2 FROM Temp_autores
+    ''')
+    
+    # 3. Actualizar Version con autor_id
+    c.execute('''
+    UPDATE Version
+    SET autor_id = (SELECT id FROM User_Login WHERE usuario = Version.autor)
+    ''')
+    
+    conn.commit()
+    conn.close()
+
 def reset_db():
     """Reinicia completamente la base de datos (solo para desarrollo)"""
     if os.path.exists('network_configs.db'):
@@ -37,7 +62,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     # Para desarrollo: reset_db() para forzar recreación
     #reset_db()
-    init_db()
+    #init_db()
+    migrate_data()
 
 
 
