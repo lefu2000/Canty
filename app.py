@@ -2,7 +2,7 @@
 import os
 import logging
 import sqlite3
-from datetime import timedelta
+from datetime import datetime, timedelta
 from contextlib import closing 
 from functools import wraps
 
@@ -135,76 +135,6 @@ def login():
             return redirect(url_for('login'))
 
     return render_template('auth/login.html')
-
-@app.route('/device')
-def device():
-    if not is_authenticated():
-        return redirect(url_for('login'))
-    
-    try:
-        # Configuración de paginación
-        page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 10, type=int)
-        device_id = request.args.get('device_id', type=int)  # Filtro por dispositivo
-        
-        # Validar parámetros
-        per_page = 10 if per_page not in [10, 25, 50, 100] else per_page
-        
-        with closing(get_db()) as conn:
-            # Query base con filtro opcional
-            base_query = '''
-                SELECT 
-                    v.id, 
-                    v.version, 
-                    v.fecha, 
-                    v.status,
-                    d.name as device_name
-                FROM Version v
-                LEFT JOIN Device d ON v.device_id = d.id
-                {where}
-                ORDER BY v.fecha DESC
-            '''
-            
-            # Construir WHERE dinámico
-            where_clause = 'WHERE v.device_id = ?' if device_id else ''
-            params = [device_id] if device_id else []
-            
-            # 1. Contar total
-            count_query = f'SELECT COUNT(*) FROM Version v {where_clause}'
-            total_versions = conn.execute(count_query, params).fetchone()[0]
-            
-            # 2. Obtener datos paginados
-            offset = (page - 1) * per_page
-            data_query = base_query.format(where=where_clause) + ' LIMIT ? OFFSET ?'
-            versions = conn.execute(data_query, params + [per_page, offset]).fetchall()
-            
-            # 3. Calcular paginación
-            total_pages = (total_versions + per_page - 1) // per_page
-            
-            # Obtener lista de dispositivos para el filtro
-            devices = conn.execute('SELECT id, name FROM Device ORDER BY name').fetchall()
-            
-            return render_template('device.html',
-                all_version=versions,
-                devices=devices,
-                current_device=device_id,
-                pagination={
-                    'page': page,
-                    'per_page': per_page,
-                    'total': total_versions,
-                    'total_pages': total_pages,
-                    'has_next': page < total_pages,
-                    'has_prev': page > 1
-                }
-            )
-            
-    except sqlite3.Error as e:
-        logger.error(f"Database error: {e}")
-        return render_template('error.html', error="Database operation failed"), 500
-        
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        return render_template('error.html', error="Internal server error"), 500
 
 @app.route('/dashboard')
 @login_required
