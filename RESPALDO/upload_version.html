@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% block title %}Subir Configuración{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<style>
+    .load-container {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+        color: var(--primary-dark);
+        margin: 0;
+    }
+    
+    .back-button {
+        background-color: var(--primary-light);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+    
+    .back-button:hover {
+        background-color: var(--primary);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--primary-dark);
+    }
+    
+    .form-group input {
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--primary-light);
+    }
+    
+    .drop-area {
+        border: 2px dashed #ddd;
+        border-radius: 6px;
+        padding: 40px;
+        text-align: center;
+        margin: 25px 0;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .drop-area:hover, .drop-area.dragover {
+        border-color: var(--primary-light);
+        background-color: rgba(65, 90, 119, 0.05);
+    }
+    
+    .drop-area p {
+        color: #666;
+        margin: 0;
+    }
+    
+    #file-input {
+        display: none;
+    }
+    
+    .accept-button {
+        background-color: var(--success);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 100%;
+        transition: background-color 0.3s;
+    }
+    
+    .accept-button:hover {
+        background-color: #1e6b23;
+    }
+    
+    .error-message {
+        color: var(--error);
+        background-color: #ffebee;
+        padding: 15px;
+        border-radius: 6px;
+        margin-top: 20px;
+        display: none;
+    }
+    
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .back-button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-container">
+    <!-- Menu Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Network Config</h2>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{{ url_for('dashboard') }}" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('dashboard_list_version') }}" class="menu-item active">
+                <i class="fas fa-network-wired"></i>
+                <span>Configuraciones</span>
+            </a>
+            <a href="{{ url_for('list_device') }}" class="menu-item">
+                <i class="fas fa-server"></i>
+                <span>Equipos</span>
+            </a>
+            <a href="{{ url_for('documentacion') }}" class="menu-item">
+                <i class="fas fa-book"></i>
+                <span>Documentación</span>
+            </a>
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('user_management') }}" class="menu-item">
+                <i class="fas fa-users-cog"></i>
+                <span>Administración</span>
+            </a>
+            {% endif %}
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="load-container">
+            <div class="page-header">
+                <h1 class="page-title">Cargar Nueva Configuración</h1>
+                <button class="back-button" id="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver al Dashboard
+                </button>
+            </div>
+            
+            <form id="upload-form" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="form-group">
+                    <label for="acronym">Acrónimo del Equipo</label>
+                    <input type="text" id="acronym" name="acronym" 
+                           placeholder="Ej: SWT-MIA-01" required
+                           pattern="[A-Za-z]{3}-[A-Za-z]{3}-\d{2}"
+                           title="Formato: XXX-XXX-00 (3 letras, guión, 3 letras, guión, 2 dígitos)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="creation-date">Fecha de Creación</label>
+                    <input type="date" id="creation-date" name="creation_date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="version">Versión de Configuración</label>
+                    <input type="text" id="version" name="version" 
+                           placeholder="Ej: 1.0.1" required
+                           pattern="\d+(\.\d+)*"
+                           title="Formato de versión (ej: 1.0.1)">
+                </div>
+                
+                <div class="drop-area" id="drop-area">
+                    <p>Arrastra y suelta tu archivo de configuración (.txt) aquí</p>
+                    <p>o haz clic para seleccionar un archivo</p>
+                    <input type="file" id="file-input" name="config_file" accept=".txt" required>
+                </div>
+                
+                <button type="submit" class="accept-button">
+                    <i class="fas fa-upload"></i>
+                    Subir Configuración
+                </button>
+                
+                <div id="error-message" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const backButton = document.getElementById('back-button');
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-input');
+        const uploadForm = document.getElementById('upload-form');
+        const errorMessage = document.getElementById('error-message');
+        let uploadedFile = null;
+
+        // Redirección al dashboard
+        backButton.addEventListener('click', () => {
+            window.location.href = "{{ url_for('dashboard') }}";
+        });
+
+        // Manejo de drag and drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('dragover');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+        dropArea.addEventListener('click', () => fileInput.click(), false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+                    uploadedFile = file;
+                    dropArea.innerHTML = `
+                        <p><i class="fas fa-file-alt" style="font-size: 24px; color: var(--primary);"></i></p>
+                        <p><strong>${file.name}</strong></p>
+                        <p>Tamaño: ${formatFileSize(file.size)}</p>
+                    `;
+                    errorMessage.style.display = 'none';
+                } else {
+                    showError('Tipo de archivo no válido. Solo se permiten archivos .txt');
+                    uploadedFile = null;
+                }
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Validación del formulario
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            // Validación adicional del lado del cliente
+            if (!uploadedFile) {
+                showError('Por favor selecciona un archivo de configuración');
+                return;
+            }
+
+            // Mostrar indicador de carga
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+            submitButton.disabled = true;
+
+            // Enviar datos al servidor
+            fetch("{{ url_for('upload_version') }}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect || "{{ url_for('dashboard_list_version') }}";
+                } else {
+                    showError(data.error || 'Error al subir la configuración');
+                }
+            })
+            .catch(error => {
+                showError('Error en la conexión con el servidor');
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            });
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Versiones de Configuración - {{ equipo.acronimo }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<style>
+    .version-container {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .equipo-header {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .equipo-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .info-card {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="version-container">
+    <!-- Encabezado del equipo -->
+    <div class="equipo-header">
+        <h2>Configuraciones para: {{ equipo.nombre_equipo }}</h2>
+        <div class="equipo-info">
+            <div class="info-card">
+                <strong>Acrónimo:</strong> {{ equipo.acronimo }}
+            </div>
+            <div class="info-card">
+                <strong>IP:</strong> {{ equipo.ip }}
+            </div>
+            <div class="info-card">
+                <strong>Modelo:</strong> {{ equipo.modelo }}
+            </div>
+            <div class="info-card">
+                <strong>Estado:</strong> 
+                <span class="badge {% if equipo.estado == 'Activo' %}bg-success{% else %}bg-secondary{% endif %}">
+                    {{ equipo.estado }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de versiones -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Versión</th>
+                    <th>Fecha</th>
+                    <th>Tamaño</th>
+                    <th>Autor</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for version in all_version %}
+                <tr>
+                    <td>{{ version.version }}</td>
+                    <td>{{ version.fecha_formateada }}</td>
+                    <td>{{ "%.2f"|format(version.tamano/1024) }} KB</td>
+                    <td>{{ version.autor }}</td>
+                    <td>
+                        <span class="badge {% if version.status == 'active' %}bg-success{% elif version.status == 'draft' %}bg-warning{% else %}bg-secondary{% endif %}">
+                            {{ version.status|capitalize }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('download_version', id=version.id) }}" 
+                           class="btn btn-sm btn-primary"
+                           title="Descargar configuración">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">No se encontraron versiones para este equipo</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    {% if pagination.total_pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if pagination.has_prev %}
+            <li class="page-item">
+                <a class="page-link" 
+                   href="{{ url_for('list_version', acronimo=equipo.acronimo, page=pagination.page-1, per_page=pagination.per_page) }}">
+                    &laquo; Anterior
+                </a>
+            </li>
+            {% endif %}
+
+            {% for p in range(1, pagination.total_pages + 1) %}
+            <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                <a class="page-link" 
+                   href="{{ url_for('list_version', acronimo=equipo.acronimo, page=p, per_page=pagination.per_page) }}">
+                    {{ p }}
+                </a>
+            </li>
+            {% endfor %}
+
+            {% if pagination.has_next %}
+            <li class="page-item">
+                <a class="page-link" 
+                   href="{{ url_for('list_version', acronimo=equipo.acronimo, page=pagination.page+1, per_page=pagination.per_page) }}">
+                    Siguiente &raquo;
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    
+    <!-- Botón de volver -->
+    <div class="mt-4">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a todos los equipos
+        </a>
+    </div>
+</div>
+{% endblock %}

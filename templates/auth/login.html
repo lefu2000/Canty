@@ -1,4 +1,4 @@
-bienvenido<!-- network_config_manager/templates/auth/login.html -->
+<!-- network_config_manager/templates/auth/login.html -->
 {% extends "base.html" %}
 
 {% block title %}Inicio de Sesión{% endblock %}
@@ -11,21 +11,20 @@ bienvenido<!-- network_config_manager/templates/auth/login.html -->
 {% block content %}
     <div class="login-container">
         <h1>Inicio de Sesión</h1>
+
         <form id="login-form" method="POST" action="{{ url_for('login') }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> <!-- token CSRF que Flask-WTF requiere para protección contra ataques. --> 
 
             <div class="form-group">
                 <label for="usuario">Usuario</label>
-                <input type="text" id="usuario" name="usuario" placeholder="Ingrese su usuario" required>   
-                <span class="error-text"></span>        
+                <input type="text" id="usuario" name="usuario" placeholder="Ingrese su usuario" required>         
             </div>
 
             <div class="form-group">
                 <label for="contrasena">Contraseña</label>
                 <input type="password" id="contrasena" name="contrasena" placeholder="Ingrese su contraseña" required>
-                <span class="error-text"></span>
             </div>
-                {% if error %}<p class="error">{{ error }}</p>{% endif %}
+            <!--   {% if error %}<p class="error">{{ error }}</p>{% endif %} Evitar visual duplicado de error--> 
 
             <button type="submit" class="login-button">Iniciar Sesión</button>
         </form>

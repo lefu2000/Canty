@@ -1,0 +1,66 @@
+/* base.css */
+:root {
+    --primary-dark: #1b263b;
+    --primary: #415a77;
+    --primary-light: #778da9;
+    --background: #e0e1dd;
+    --error: #a84e42;
+    --success: #2e7d32;
+    --warning: #ff9800;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+footer {
+  position: static;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  padding: 0.5rem;
+  background-color: var(--primary-dark);
+  color: white;
+}
+/* Estilos para mensajes flash */
+.flash-messages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    color: white;
+}
+
+.alert-success {
+    background-color: var(--success);
+}
+
+.alert-error {
+    background-color: var(--error);
+}
+
+/* Estilos para spinner */
+.spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

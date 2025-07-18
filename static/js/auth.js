@@ -1,8 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('login-form');
-    const errorElement = document.createElement('div');
-    errorElement.className = 'error-message';
-    form.insertBefore(errorElement, form.firstChild);
+    
+    // Verificar si ya existe un elemento de error
+    let errorElement = form.querySelector('.error-message');
+    
+    // Si no existe, crearlo
+    if (!errorElement) {
+        errorElement = document.createElement('div');
+        errorElement.className = 'error-message';
+        errorElement.style.display = 'none';
+        form.insertBefore(errorElement, form.firstChild);
+    }
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -58,5 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function showError(message) {
         errorElement.textContent = message;
         errorElement.style.display = 'block';
+    }
+
+        function showError(message) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block'; // Mostrar solo cuando haya error
     }
 });

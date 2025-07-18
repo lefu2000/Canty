@@ -1,4 +1,5 @@
-:root {
+    <style>
+        :root {
     --primary-dark: #1b263b;
     --primary: #415a77;
     --primary-light: #778da9;
@@ -7,7 +8,7 @@
     --success: #2e7d32;
     --warning: #ff9800;
 }
-
+    
 body {
     font-family: 'Inter', sans-serif;
     margin: 0;
@@ -352,3 +353,4 @@ td {
 .btn-icon {
     margin-right: 5px;
 }
+    </style>

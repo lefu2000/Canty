@@ -1,28 +1,44 @@
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f5f5f5;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+/* auth.css */
+:root {
+    --primary-dark: #1b263b;
+    --primary: #415a77;
+    --primary-light: #778da9;
+    --background: #e0e1dd;
+    --error: #a84e42;
+    --success: #2e7d32;
+    --warning: #ff9800;
 }
+
+/* auth.css */
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
 .login-container {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
+  width: 448px;
+  height: 365.44px;
+  background: #FFFFFF;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  color: #333333;
 }
 h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+  text-align: center;
 }
 .form-group {
-    margin-bottom: 1rem;
+  margin-bottom: 16px;
 }
 label {
     display: block;
@@ -30,7 +46,7 @@ label {
     color: #555;
 }
 input {
-    width: 100%;
+    width: 95%;
     padding: 0.75rem;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -51,26 +67,60 @@ button:hover {
     background-color: #45a049;
 }
 .error-message {
-    color: #d32f2f;
-    background-color: #fde0e0;
-    padding: 0.75rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-    display: none;
-}
-
-.spinner {
-    display: inline-block;
-    animation: spin 1s linear infinite;
-}
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-.error-message {
+    display: none; /* Oculto por defecto */
     color: #d32f2f;
     background-color: #fde0e0;
     padding: 12px;
     border-radius: 4px;
-    margin-bottom: 16px;
-    display: none;
+    margin-bottom: 20px;
+    text-align: center;
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Clase para mostrar el error cuando sea necesario */
+.error-message.show {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/*
+ Estilos para mensajes flash 
+.flash-messages {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: 90%;
+    max-width: 400px;
+}
+
+.alert {
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    color: white;
+    text-align: center;
+}
+
+.alert-success {
+    background-color: var(--success);
+}
+
+.alert-error {
+    background-color: var(--error);
+}
+*/
+/* Estilos para spinner */
+.spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }

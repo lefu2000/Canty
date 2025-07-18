@@ -2,34 +2,69 @@
 
 {% block title %}Crear Nuevo Usuario{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="admin-container">
-    <div class="card">
-        <div class="card-header">
-            <h2><i class="fas fa-user-plus"></i> Crear Nuevo Usuario</h2>
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Network Config</h2>
         </div>
-        <div class="card-body">
+        <div class="sidebar-menu">
+            <a href="{{ url_for('dashboard') }}" class="menu-item active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('list_device') }}" class="menu-item">
+                <i class="fas fa-network-wired"></i>
+                <span>Configuraciones</span>
+            </a>
+            <a href="{{ url_for('list_device') }}" class="menu-item">
+                <i class="fas fa-server"></i>
+                <span>Equipos</span>
+            </a>
+            <a href="{{ url_for('documentacion') }}" class="menu-item">
+                <i class="fas fa-book"></i>
+                <span>Documentación</span>
+            </a>
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('user_management') }}" class="menu-item">
+                <i class="fas fa-users-cog"></i>
+                <span>Administración</span>
+            </a>
+            {% endif %}
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="header">
+            <h1><i class="fas fa-user-plus"></i> Crear Nuevo Usuario</h1>
+            <div class="user-info">
+                <!-- Info del usuario actual -->
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h3 class="form-title">Información del Usuario</h3>
+            
             <form method="POST" action="{{ url_for('create_user') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 
                 <div class="form-group">
                     <label for="username">Nombre de Usuario:</label>
-                    <input type="text" id="username" name="username" 
-                           class="form-control" required
-                           placeholder="Ej: jperez">
+                    <input type="text" id="username" name="username" class="form-control" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Contraseña:</label>
-                    <input type="password" id="password" name="password"
-                           class="form-control" required
-                           placeholder="Mínimo 8 caracteres">
+                    <input type="password" id="password" name="password" class="form-control" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="password_confirm">Confirmar Contraseña:</label>
-                    <input type="password" id="password_confirm" 
-                           name="password_confirm" class="form-control" required>
+                    <input type="password" id="password_confirm" name="password_confirm" class="form-control" required>
                 </div>
                 
                 <div class="form-group">
@@ -41,11 +76,11 @@
                     </select>
                 </div>
                 
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
+                <div class="form-footer">
+                    <button type="submit" class="btn-primary">
                         <i class="fas fa-save"></i> Guardar Usuario
                     </button>
-                    <a href="{{ url_for('user_management') }}" class="btn btn-secondary">
+                    <a href="{{ url_for('user_management') }}" class="btn-secondary">
                         <i class="fas fa-times"></i> Cancelar
                     </a>
                 </div>

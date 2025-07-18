@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="app-container">
+    <!-- Menu -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Network Config</h2>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{{ url_for('dashboard') }}" class="menu-item active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('dashboard_list_version') }}" class="menu-item">
+                <i class="fas fa-network-wired"></i>
+                <span>Configuraciones</span>
+            </a>
+            <a href="{{ url_for('list_device') }}" class="menu-item">
+                <i class="fas fa-server"></i>
+                <span>Equipos</span>
+            </a>
+            <a href="{{ url_for('documentacion') }}" class="menu-item">
+                <i class="fas fa-book"></i>
+                <span>Documentación</span>
+            </a>
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('user_management') }}" class="menu-item">
+                <i class="fas fa-users-cog"></i>
+                <span>Administración de Usuarios</span>
+            </a>
+            {% endif %}
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h1>Panel de Control</h1>
+            <div class="user-info">
+                <div class="user-avatar">{{ current_user.username[0]|upper }}</div>
+                <div>
+                    <div class="user-name">{{ current_user.username }}</div>
+                    <div class="user-role">
+                        {% if current_user.is_admin %}
+                        Administrador
+                        {% else %}
+                        Trabajador
+                        {% endif %}
+                    </div>
+                </div>
+                <a href="{{ url_for('logout') }}" class="logout-btn" title="Cerrar sesión">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Cards -->
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Dispositivos Totales</span>
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <div class="card-value">{{ total_devices }}</div>
+                <div class="card-footer">+5% desde la última semana</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Dispositivos Activos</span>
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="card-value">{{ active_devices }}</div>
+                <div class="card-footer">+3% desde la última semana</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Configuraciones</span>
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="card-value">{{ total_configs }}</div>
+                <div class="card-footer">+2 nuevas esta semana</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Usuarios</span>
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="card-value">{{ total_users }}</div>
+                <div class="card-footer">
+                    {% if current_user.is_admin %}
+                    <a href="{{ url_for('user_management') }}">Gestionar</a>
+                    {% else %}
+                    Sistema
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Funcionalidad de búsqueda
+    document.querySelector('.search-bar').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Confirmación de cierre de sesión
+    document.querySelector('.logout-btn').addEventListener('click', function(e) {
+        if(!confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+            e.preventDefault();
+        }
+    });
+</script>
+{% endblock %}

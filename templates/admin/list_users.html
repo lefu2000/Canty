@@ -1,75 +1,92 @@
 {% extends "base.html" %}
 
+{% block title %}Lista de Usuarios{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="admin-container">
-    <h2>Gestión de Usuarios</h2>
-    
-    <!-- Formulario de creación -->
-    <div class="card">
-        <h3>Crear Nuevo Usuario</h3>
-        <form method="POST" action="{{ url_for('manage_users') }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            
-            <div class="form-group">
-                <label for="usuario">Nombre de Usuario:</label>
-                <input type="text" id="usuario" name="usuario" required>
+<div class="app-container">
+    <!-- Menu -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Network Config</h2>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{{ url_for('dashboard') }}" class="menu-item active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('list_device') }}" class="menu-item">
+                <i class="fas fa-network-wired"></i>
+                <span>Configuraciones</span>
+            </a>
+            <a href="{{ url_for('list_device') }}" class="menu-item">
+                <i class="fas fa-server"></i>
+                <span>Equipos</span>
+            </a>
+            <a href="{{ url_for('documentacion') }}" class="menu-item">
+                <i class="fas fa-book"></i>
+                <span>Documentación</span>
+            </a>
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('user_management') }}" class="menu-item">
+                <i class="fas fa-users-cog"></i>
+                <span>Administración</span>
+            </a>
+            {% endif %}
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="header">
+            <h1><i class="fas fa-users"></i> Lista de Usuarios</h1>
+            <div class="user-info">
+                <!-- Info del usuario actual -->
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">Usuarios Registrados</h3>
+                <a href="{{ url_for('create_user') }}" class="btn-primary">
+                    <i class="fas fa-user-plus"></i> Nuevo Usuario
+                </a>
             </div>
             
-            <div class="form-group">
-                <label for="contrasena">Contraseña:</label>
-                <input type="password" id="contrasena" name="contrasena" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="tipo_usuario">Tipo de Usuario:</label>
-                <select id="tipo_usuario" name="tipo_usuario" required>
-                    {% for tipo in tipos_usuario %}
-                    <option value="{{ tipo.id }}">{{ tipo.tipo_usuario }}</option>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Tipo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.usuario }}</td>
+                        <td>{{ user.tipo_usuario }}</td>
+                        <td>
+                            <a href="{{ url_for('edit_user', user_id=user.id) }}" class="action-btn edit-btn">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% if user.id != current_user.id %}
+                            <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="action-btn delete-btn" onclick="return confirm('¿Eliminar este usuario?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
                     {% endfor %}
-                </select>
-            </div>
-            
-            <button type="submit" class="btn-primary">Crear Usuario</button>
-        </form>
-    </div>
-    
-    <!-- Lista de usuarios existentes -->
-    <div class="card">
-        <h3>Usuarios Existentes</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Usuario</th>
-                    <th>Tipo</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr>
-                    <td>{{ user.id }}</td>
-                    <td>{{ user.usuario }}</td>
-                    <td>{{ user.tipo_usuario }}</td>
-                    <td>
-                        <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn-sm">
-                            Editar
-                        </a>
-                        {% if user.id != session['user_id'] %}  <!-- No permitir auto-eliminación -->
-                        <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" 
-                              style="display:inline;">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="btn-sm btn-danger" 
-                                    onclick="return confirm('¿Eliminar este usuario?')">
-                                Eliminar
-                            </button>
-                        </form>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

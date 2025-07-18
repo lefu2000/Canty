@@ -5,26 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Canty Network Manager{% endblock %}</title>
-    
+      
     <!-- CSS Global -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <!-- Bloque para CSS específico -->
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Header Condicional -->
-    {% if current_user.is_authenticated %}
-        <header class="dashboard-header">
-            <nav>...</nav>
-        </header>
-    {% else %}
-        <header class="auth-header">
-            <h1>Canty</h1>
-        </header>
-    {% endif %}
-
     <!-- Sistema de Mensajes Flash -->
     {% with messages = get_flashed_messages() %}
         {% if messages %}
