@@ -1,0 +1,7 @@
+router,ip,proveedor,username,connection,status
+aba-pba-00,10.150.200.145,,lriver14,FAILED TO CONNECT
+aca-aas-00,10.150.197.16,,lriver14,FAILED TO CONNECT
+aca-anc-00,10.150.201.49,,lriver14,FAILED TO CONNECT
+aca-anc-00,10.150.201.49,,lriver14,FAILED TO CONNECT
+aca-upt-00,10.150.201.66,,lriver14,FAILED TO CONNECT
+aco-msp-00,10150200167,,lriver14,FAILED TO CONNECT

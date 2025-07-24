@@ -17,7 +17,7 @@ from datetime import date
 import time
 import seccrt
 #import Connect_Session
-def connect_network_device(ip, credentials, SCRIPT_TAB, timeout=30):
+def connect_network_device(ip, credentials, SCRIPT_TAB, timeout=20):
     
     #Versión mejorada con:
     #- Mejor detección de prompts
@@ -274,9 +274,9 @@ def main():
         
         #"router", "ip","proveedor", "username", "connection", "status"
         elif result["status"]  == 1:
-            connect_result_file.writerow([router['router'],router['ip'],router["proveedor"],result["username"],"NOT AUTHENTICATE"])
+            connect_result_file.writerow([router["router"],router['ip'],router["proveedor"],result["username"],"NOT AUTHENTICATE"])
         elif result["status"]  == 2:
-            connect_result_file.writerow([router['router'],router['ip'],router["proveedor"],result["username"],"FAILED TO CONNECT"])
+            connect_result_file.writerow([router["router"],router['ip'],router["proveedor"],result["username"],"FAILED TO CONNECT"])
         
     file_connect.close()
     file_routers.close()

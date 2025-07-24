@@ -144,11 +144,11 @@ def main():
             else:
                 status = "FAILED. PROVEEDOR NO SOPORTADO."
                 SCRIPT_TAB.Screen.Send("quit\r")
-                connect_result_file.writerow([router['router'], router['ip'],router["proveedor"], result["username"], result["conn"], status])
+                connect_result_file.writerow([router["router"], router["ip"],router["proveedor"], result["username"], result["conn"], status])
                 continue
 
         
-            connect_result_file.writerow([router['router'],router['ip'],router["proveedor"],result["username"],result["conn"],status])
+            connect_result_file.writerow([router["router"],router["ip"],router["proveedor"],result["username"],result["conn"],status])
 
             SCRIPT_TAB.Session.Disconnect()
 
