@@ -1,10 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('login-form');
     
-    // Verificar si ya existe un elemento de error
+    // Crear elemento de error si no existe
     let errorElement = form.querySelector('.error-message');
-    
-    // Si no existe, crearlo
     if (!errorElement) {
         errorElement = document.createElement('div');
         errorElement.className = 'error-message';
@@ -17,10 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const usuario = document.getElementById('usuario').value.trim();
         const contrasena = document.getElementById('contrasena').value.trim();
-        const csrfToken = document.querySelector('[name="csrf_token"]').value;
         const submitBtn = form.querySelector('button[type="submit"]');
         
-        // Validación
+        // Validación básica
         if (!usuario || !contrasena) {
             showError('Por favor ingrese usuario y contraseña');
             return;
@@ -28,36 +25,33 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Estado de carga
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner">Autenticando...</span>';
+        submitBtn.textContent = 'Autenticando...';
+        hideError();
         
         try {
+            // ✅ Usar FormData para incluir automáticamente el CSRF token
+            const formData = new FormData(form);
+            
             const response = await fetch("/login", {
                 method: 'POST',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Accept': 'application/json'
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: new URLSearchParams({
-                    usuario,
-                    contrasena,
-                    csrf_token: csrfToken
-                })
+                body: formData
             });
-
-            // Verificar primero el estado de la respuesta
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Error en la autenticación');
-            }
 
             const data = await response.json();
             
-            if (data.redirect) {
+            if (response.ok && data.success) {
                 window.location.href = data.redirect;
+            } else {
+                showError(data.error || 'Error en la autenticación');
             }
         } catch (error) {
-            showError(error.message || 'Error en el servidor');
+            showError('Error de conexión con el servidor');
+            console.error('Error:', error);
+        } finally {
+            // ✅ Siempre restaurar el botón
             submitBtn.disabled = false;
             submitBtn.textContent = 'Iniciar Sesión';
         }
@@ -68,8 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
         errorElement.style.display = 'block';
     }
 
-        function showError(message) {
-        errorElement.textContent = message;
-        errorElement.style.display = 'block'; // Mostrar solo cuando haya error
+    function hideError() {
+        errorElement.style.display = 'none';
+        errorElement.textContent = '';
     }
 });
