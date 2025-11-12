@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 from contextlib import closing 
 from functools import wraps
 from contextlib import closing
+import socket
+
 
 # Módulos de Flask y extensiones
 from flask import Flask, flash, jsonify, render_template, request, redirect, url_for, session, abort, send_file, send_from_directory
@@ -35,24 +37,8 @@ app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(24).hex()
 csrf = CSRFProtect(app)
 limiter = Limiter(app=app, key_func=get_remote_address)
 
-# Configuración combinada
-app.config.update(
-    # Seguridad
-    SESSION_COOKIE_SECURE=True,
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE='Lax',
-    PERMANENT_SESSION_LIFETIME=timedelta(hours=1),
-    WTF_CSRF_ENABLED=True,
-    WTF_CSRF_TIME_LIMIT=3600,
-    
-    # Aplicación
-    DATABASE='network_configs.db',
-    TEMPLATES_AUTO_RELOAD=True,
-    DOCUMENTATION_FOLDER = os.path.join(app.root_path, 'static', 'docs'),
-    
-    # Rate limiting
-    DEFAULT_LIMITS=["200 per day", "50 per hour"]
-)
+#Llamado a las configuraciones
+app.config.from_object('config.Config')
 
 # Constantes para mensajes de error
 ERROR_MESSAGES = {
@@ -817,7 +803,14 @@ def validate_credentials(username, password):
 @app.route('/')
 def index():
     return redirect(url_for('login'))
+
+
     
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    
+    # Obtener IP local automáticamente
+    hostname = socket.gethostname()
+    local_ip = socket.gethostbyname(hostname)
+    
+    app.run(debug=True, host='161.196.49.37', port=5000)
