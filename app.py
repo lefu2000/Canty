@@ -14,7 +14,7 @@ from flask import Flask, flash, jsonify, render_template, request, redirect, url
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, CSRFError
 from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user, login_required
 from flask_login import login_required, current_user
 
@@ -214,7 +214,7 @@ def list_device():
 
 @app.route('/list_device/crear', methods=['GET', 'POST'])
 @login_required
-def created_device():
+def create_device():
     """Crea un nuevo equipo"""
     if request.method == 'POST':
         try:
@@ -223,7 +223,7 @@ def created_device():
                 'ip': request.form['ip'],
                 'nombre_equipo': request.form['nombre_equipo'],
                 'modelo': request.form['modelo'],
-                'proveedor': request.form['proveedor'],
+                'proveedor': request.form.get('ALCATE', 'ZTE', 'HUAWEI'),
                 'localidad': request.form['localidad'],
                 'region': request.form['region'],
                 'estado': request.form.get('estado', 'inactivo')
@@ -246,14 +246,14 @@ def created_device():
             
         except sqlite3.IntegrityError as e:
             flash('El acrónimo o la IP ya existen en el sistema', 'error')
-            return redirect(url_for('created_device'))
+            return redirect(url_for('create_device'))
         except Exception as e:
             logger.error(f"Error al crear equipo: {str(e)}")
             flash('Error al crear el equipo', 'error')
-            return redirect(url_for('created_device'))
+            return redirect(url_for('create_device'))
     
     # GET: Mostrar formulario
-    return render_template('equipos/crear.html')
+    return render_template('equipos/create_device.html')
 
 @app.route('/list_device/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -295,11 +295,11 @@ def edit_device(id):
                 flash('Equipo no encontrado', 'error')
                 return redirect(url_for('list_device'))
                 
-            return render_template('equipos/editar.html', equipo=equipo)
+            return render_template('equipos/edit_device.html', equipo=equipo)
             
     except sqlite3.IntegrityError as e:
         flash('El acrónimo o la IP ya existen en el sistema', 'error')
-        return redirect(url_for('editar_equipo', id=id))
+        return redirect(url_for('edit_equipo', id=id))
     except Exception as e:
         logger.error(f"Error al editar equipo: {str(e)}")
         flash('Error al editar el equipo', 'error')
@@ -379,7 +379,7 @@ def create_user():
             'SELECT id, tipo_usuario FROM Tipo_usuario'
         ).fetchall()
         
-    return render_template('admin/created_users.html', 
+    return render_template('admin/create_users.html', 
                          user_types=user_types)
 
 @app.route('/list_version')
@@ -782,6 +782,14 @@ def internal_server_error(e):
                         debug=app.debug,
                         error_details=str(e)), 500
 
+@app.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    logger.warning(f"CSRF token missing/invalid: {e.description}")
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'success': False, 'error': 'CSRF token missing or invalid'}), 400
+    flash('Token CSRF inválido o ausente', 'error')
+    return redirect(request.referrer or url_for('index'))
+
 # Funciones auxiliares
 def get_user_by_username(conn, username):
     """Obtiene usuario de la base de datos."""
@@ -813,4 +821,5 @@ if __name__ == '__main__':
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
     
-    app.run(debug=True, host='161.196.49.37', port=5000)
+    #app.run(debug=True, host='161.196.49.37', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)

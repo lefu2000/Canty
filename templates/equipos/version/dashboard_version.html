@@ -4,65 +4,12 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-    <style>
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .btn-add-config {
-            background-color: var(--success);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.3s;
-        }
-
-        .btn-add-config:hover {
-            background-color: #1e6b23;
-        }
-    </style>
 {% endblock %}
 
 {% block content %}
 
 <div class="app-container">
-    <!-- Menu -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <h2>Network Config</h2>
-        </div>
-        <div class="sidebar-menu">
-            <a href="{{ url_for('dashboard') }}" class="menu-item active">
-                <i class="fas fa-tachometer-alt"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="{{ url_for('dashboard_list_version') }}" class="menu-item">
-                <i class="fas fa-network-wired"></i>
-                <span>Configuraciones</span>
-            </a>
-            <a href="{{ url_for('list_device') }}" class="menu-item">
-                <i class="fas fa-server"></i>
-                <span>Equipos</span>
-            </a>
-            <a href="{{ url_for('documentacion') }}" class="menu-item">
-                <i class="fas fa-book"></i>
-                <span>Documentación</span>
-            </a>
-            {% if current_user.is_admin %}
-            <a href="{{ url_for('user_management') }}" class="menu-item">
-                <i class="fas fa-users-cog"></i>
-                <span>Administración de Usuarios</span>
-            </a>
-            {% endif %}
-        </div>
-    </aside>
+    {% include 'menu_template.html' %}
 
     <!-- Main Content -->
     <div class="main-content">
